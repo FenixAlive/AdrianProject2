@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {render} from 'react-dom';
+import User from './User';
 import Options from './Options'
 import Estadisticas from './Estadisticas'
 import './App.css'
@@ -11,16 +12,15 @@ class App extends Component {
         super();
         this.state = {
             admin: false,
-            isAdmin: false,
             myId: '',
             username: '',
+            password: '',
             userOk: false,
             gameBegins: false
         }
-        this.handleAdmin = this.handleAdmin.bind(this);
-        this.handleAdminReboot = this.handleAdminReboot.bind(this);
         this.handleUserOk = this.handleUserOk.bind(this);
         this.handleUser = this.handleUser.bind(this);
+        this.handlePass = this.handlePass.bind(this);
         this.handleBeginGame = this.handleBeginGame.bind(this);
         this.handleAnswer = this.handleAnswer.bind(this);
     }
@@ -31,31 +31,14 @@ class App extends Component {
             this.setState({
                 myId: id
             }, ()=>{
-                if(sessionStorage.getItem('myId') && sessionStorage.getItem('myId') !== ""){
-                    this.socket.emit('changeId', sessionStorage.getItem('myId'))  
-                }else{
-                    this.socket.emit('isAdmin', this.state.admin);
-                }
                 sessionStorage.setItem('myId', id)
-                console.log(id);
                 this.socket.emit('isGameBegin', '');
             })
         })
         //datos usuario
-        this.socket.on('isAdmin', isAdmin => {
+        this.socket.on('ImAdmin', () => {
             this.setState({
-                isAdmin: isAdmin
-            })
-        })
-        this.socket.on('returnAdmin', isAdmin => {
-            this.setState({
-                admin: isAdmin
-            })
-        })
-        this.socket.on('rebootAdmin', () => {
-            this.setState({
-                admin: false,
-                isAdmin: false
+                admin: true
             })
         })
         this.socket.on('userNotValid', () => {
@@ -66,16 +49,20 @@ class App extends Component {
                 alert("Usuario no valido, buscar otro");
             })
         })
-        if(this.state.username == ''){
-            if(sessionStorage.getItem('username')){
+        if(this.state.username == '' || this.state.password == ''){
+            if(sessionStorage.getItem('username') && sessionStorage.getItem('password') && sessionStorage.getItem('userOk')){
                 this.setState({
                     username: sessionStorage.getItem('username'),
+                    password: sessionStorage.getItem('password'),
                     userOk: sessionStorage.getItem('userOk')
+                }, () => {
+                    this.socket.emit('amIAdmin', {user: this.state.username, pass: this.state.password});
                 })
             }
         }else{
-            sessionStorage.setItem('username', this.state.username)
+            sessionStorage.setItem('username', this.state.username);
             sessionStorage.setItem('userOk', this.state.userOk);
+            sessionStorage.setItem('password', this.state.password);
         }
         //juego
         this.socket.on('beginGame', isIt => {
@@ -93,30 +80,19 @@ class App extends Component {
         })
     } //termina didMount
 
-    handleAdmin() {
-        var admin = this.state.admin;
-        if(admin || !this.state.isAdmin)
-        this.setState({
-            admin: !admin
-        },()=>{
-            this.socket.emit('isAdmin', !admin)
-        })
-    }
-    handleAdminReboot() {
-        this.socket.emit('rebootAdmin', '');
-    }
     handleUser(e) {
         this.setState({
             username: e.target.value
         })
     }
     handleUserOk() {
-        if(this.state.username != ''){
+        if(this.state.username != '' && this.state.password != ''){
             if(!this.state.userOk){
-                this.socket.emit('newUser', this.state.username);
+                this.socket.emit('newUser', {user: this.state.username, pass: this.state.password});
                 sessionStorage.setItem('username', this.state.username);
+                sessionStorage.setItem('password', this.state.password);
             }else{
-                this.socket.emit('deleteUser', this.state.username);
+                this.socket.emit('deleteUser', {user: this.state.username, pass: this.state.password});
             }
             this.setState({
                 userOk: !this.state.userOk
@@ -125,8 +101,13 @@ class App extends Component {
             })
         }
     }
+    handlePass(e) {
+        this.setState({
+            password: e.target.value
+        })
+    }
     handleBeginGame(){
-        this.socket.emit('beginGame', this.state.myId);
+        this.socket.emit('beginGame', {user: this.state.username, pass: this.state.password});
     }
     handleAnswer(answer){
         var ans = {
@@ -138,46 +119,21 @@ class App extends Component {
     }
 
     render() {
-        //adminstrador
-        if(this.state.admin && this.state.isAdmin) {
-            var btnAdmin = <button onClick={this.handleAdmin}>Dejar Administración</button>
-        }else if(this.state.isAdmin){
-            var btnAdmin = <button onClick={this.handleAdminReboot}>Cambiar Administrador</button>;
-        }else {
-            var btnAdmin = <button onClick={this.handleAdmin}>Administrar Partida</button>
-        }
-        //boton usuario
-        if(this.state.userOk) {
-            var user = <React.Fragment>
-                <div>
-                    <span>{this.state.username}</span>
-                    <button onClick={this.handleUserOk}>Cambiar</button>
-                </div>
-                {btnAdmin}
-                </React.Fragment>
-        }else {
-            var user = <div>
-                <input 
-                    type = "text"
-                    value = {this.state.username}
-                    placeholder = "Nombre de Usuario"
-                    onChange={this.handleUser}
-                />
-                <button onClick={this.handleUserOk}>Ok</button>
-            </div>
-        }
         //boton iniciar partida
         if(this.state.admin) {
-            var btnIniciar = <button onClick={this.handleBeginGame}>Iniciar Partida</button>
+            var btnIniciar = <button onClick={this.handleBeginGame}>Iniciar Cuestionario</button>
         }else{
             var btnIniciar = '';
         }
-
         if(this.state.gameBegins) {
                 return (
                     <React.Fragment>
                         <Estadisticas />
-                        <Options hans={this.handleAnswer} admin={this.state.admin} myId={this.state.myId} userOk={this.state.userOk}/>
+                        <Options hans={this.handleAnswer} 
+                            admin={this.state.admin} 
+                            myId={this.state.myId} 
+                            userOk={this.state.userOk}
+                        />
                         <footer>FenixRobotics@2019</footer>
                     </React.Fragment>
                 )
@@ -185,7 +141,13 @@ class App extends Component {
             return (
                 <React.Fragment>
                     <Estadisticas />
-                    {user}
+                    <User userOk={this.state.userOk} 
+                        username={this.state.username} 
+                        password={this.state.password}
+                        handleUser={this.handleUser}
+                        handleUserOk={this.handleUserOk}
+                        handlePass = {this.handlePass}
+                    />
                     {btnIniciar}
                     <footer>FenixRobotics@2019</footer>
                 </React.Fragment>

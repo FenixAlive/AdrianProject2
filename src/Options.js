@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import io from 'socket.io-client';
 import Time from './Time'
 
-
+//TODO hay un error
 export default class Options extends Component {
     constructor() {
         var _isMounted = false;

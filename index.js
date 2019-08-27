@@ -30,7 +30,8 @@ server.listen(app.get('port'), ()=>{
 })
 
 //game
-var idAdmin = '';
+var userAdmin = 'admin';
+var passAdmin = '1234';
 var gameBegin = false;
 var vgameOver = false;
 var juegoId = 0;
@@ -46,29 +47,8 @@ var respuestasOk = {};
 io.on('connection', socket => {
     console.log('socket connected: ', socket.id);
     socket.emit('myId', socket.id);
-    socket.on('changeId', oldId => {
-        if(oldId === idAdmin && idAdmin !== ''){
-            idAdmin = socket.id;
-            socket.emit('returnAdmin', true);
-            io.sockets.emit('isAdmin', true);
-            console.log("cambie id Admin"); //quitar
-        }
-    });
-    socket.on('isAdmin', iAdmin => {
-        if(iAdmin && idAdmin === ''){
-            idAdmin = socket.id;
-            io.sockets.emit('isAdmin', true);
-        }else if (!iAdmin && idAdmin === socket.id) {
-            idAdmin = '';
-            io.sockets.emit('isAdmin', false);
-        }else if (idAdmin != '') {
-            io.sockets.emit('isAdmin', true);
-        }else {
-            io.sockets.emit('isAdmin', false);
-        }
-    });
     socket.on('beginGame', data => {
-        if (data === idAdmin) {
+        if (data['user'] == userAdmin && data['pass'] == passAdmin) {
             console.log("let's the games begin");
             gameBegin = true;
             io.sockets.emit('beginGame', gameBegin);
@@ -78,14 +58,15 @@ io.on('connection', socket => {
             socket.emit('beginGame', gameBegin);
         }
     });
-    socket.on('reboot', id => {
-        if (id === idAdmin) {
-            limpiarJuego();
+    socket.on('amIAdmin', user => {
+        if(user['user'] == userAdmin && user['pass'] == passAdmin){
+            socket.emit('ImAdmin', '');
         }
     });
-    socket.on('rebootAdmin', () => {
-        idAdmin = '';
-        io.sockets.emit('rebootAdmin', '');
+    socket.on('reboot', data => {
+        if (data['user'] == userAdmin && data['pass'] == passAdmin) {
+            limpiarJuego();
+        }
     });
     socket.on('rebootGameOver', () => {
         limpiarJuego();
@@ -109,13 +90,25 @@ io.on('connection', socket => {
         console.log('respOk: ', respuestasOk)
     });
     socket.on('newUser', user =>{
-        if(user !== ''){
+        if(user['user'] !== '' && user['pass'] !== ''){
             var ok = users.indexOf(user);
             if(ok === -1){
-                users.push(user);
-                respuestas[user] = {};
-                respuestasOk[user] = [];
-                io.sockets.emit('resultados', {ans: respuestas, res: respuestasOk});
+                //administrador
+                if(user['user'].toLowerCase() == userAdmin && user['pass'] == passAdmin){
+                    users.push(user);
+                    respuestas[user['user']] = {};
+                    respuestasOk[user['user']] = [];
+                    io.sockets.emit('resultados', {ans: respuestas, res: respuestasOk});
+                    socket.emit('ImAdmin', '');
+                }else if (user['user'].toLowerCase() == userAdmin){
+                    console.log("contra incorr")
+                    socket.emit('userNotValid', '');
+                }else {
+                    users.push(user);
+                    respuestas[user['user']] = {};
+                    respuestasOk[user['user']] = [];
+                    io.sockets.emit('resultados', {ans: respuestas, res: respuestasOk});
+                }
             }else{
                 socket.emit('userNotValid', '');
             }
@@ -125,8 +118,8 @@ io.on('connection', socket => {
         var i = users.indexOf(user);
         if (i !== -1) {
             users.splice(i , 1);
-            delete respuestas[user];
-            delete respuestasOk[user];
+            delete respuestas[user['user']];
+            delete respuestasOk[user['user']];
             io.sockets.emit('resultados', {ans: respuestas, res: respuestasOk});
         }
 
