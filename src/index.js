@@ -3,10 +3,14 @@ import {render} from 'react-dom';
 import User from './User';
 import Options from './Options'
 import Estadisticas from './Estadisticas'
+import Footer from './Footer'
+import Resultados from './Resultados'
 import './App.css'
 
 import io from 'socket.io-client';
-//TODO: ver si poner boton de reinicio desde aqui para reiniciar usuarios cuando se requiera
+//TODO: ponerle nuevo componente a administrador para ver respuestas por usuario
+//al tener game over solo mostrar componente con estadisticas, si no esta registrado pedir datos y si no esta en el sistema decirle que bye,
+//si es el administrador permitirle ver las calificaciones de todos y si es un usuario pasarle sus calificaciones
 class App extends Component {
     constructor() {
         super();
@@ -16,13 +20,15 @@ class App extends Component {
             username: '',
             password: '',
             userOk: false,
-            gameBegins: false
+            gameBegins: false,
+            gameOver: false
         }
         this.handleUserOk = this.handleUserOk.bind(this);
         this.handleUser = this.handleUser.bind(this);
         this.handlePass = this.handlePass.bind(this);
         this.handleBeginGame = this.handleBeginGame.bind(this);
         this.handleAnswer = this.handleAnswer.bind(this);
+        this.handleReboot = this.handleReboot.bind(this);
     }
 
     componentDidMount() {
@@ -46,6 +52,7 @@ class App extends Component {
                 userOk: false
             }, () => {
                 sessionStorage.setItem('userOk', this.state.userOk);
+                //TODO: cambiar alert por algo mas amigable
                 alert("Usuario no valido, buscar otro");
             })
         })
@@ -70,12 +77,22 @@ class App extends Component {
                 gameBegins: isIt
             })
         })
+        this.socket.on('gameOver', () => {
+                this.setState({
+                    gameOver: true
+                })
+        })
         this.socket.on('reboot', () => {
-            if(this.state.username !== '' && this.state.userOk){
-                this.socket.emit('newUser', this.state.username);
+            if(this.state.username !== '' && this.state.password !== '' && this.state.userOk){
+                this.socket.emit('newUser', {user: this.state.username, pass: this.state.password});
+            }else{
+                this.setState({
+                    userOk: false,
+                })
             }
             this.setState({
                 gameBegins: false,
+                gameOver: false
             })
         })
     } //termina didMount
@@ -117,11 +134,16 @@ class App extends Component {
         }
         this.socket.emit('answer', ans);
     }
+    handleReboot(){
+        this.socket.emit('reboot', {user: this.state.username, pass: this.state.password});
+    }
 
     render() {
         //boton iniciar partida
-        if(this.state.admin) {
+        if(this.state.admin && !this.state.gameOver) {
             var btnIniciar = <button onClick={this.handleBeginGame}>Iniciar Cuestionario</button>
+        }else if(this.state.admin) {
+            var btnIniciar = <Resultados />;
         }else{
             var btnIniciar = '';
         }
@@ -129,19 +151,21 @@ class App extends Component {
                 return (
                     <React.Fragment>
                         <Estadisticas />
-                        <Options hans={this.handleAnswer} 
+                        <Options
+                            hans={this.handleAnswer} 
                             admin={this.state.admin} 
-                            myId={this.state.myId} 
+                            reboot={this.handleReboot}
                             userOk={this.state.userOk}
                         />
-                        <footer>FenixRobotics@2019</footer>
+                        <Footer />
                     </React.Fragment>
                 )
         }else {
             return (
                 <React.Fragment>
                     <Estadisticas />
-                    <User userOk={this.state.userOk} 
+                    <User
+                        userOk={this.state.userOk} 
                         username={this.state.username} 
                         password={this.state.password}
                         handleUser={this.handleUser}
@@ -149,7 +173,7 @@ class App extends Component {
                         handlePass = {this.handlePass}
                     />
                     {btnIniciar}
-                    <footer>FenixRobotics@2019</footer>
+                    <Footer />
                 </React.Fragment>
             )
         }

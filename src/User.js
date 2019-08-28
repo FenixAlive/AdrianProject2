@@ -15,6 +15,7 @@ export default class User extends Component {
         this.props.handlePass(e);
     }
     hUserOk() {
+        //si la contraseña esta vacia mandar error
         this.props.handleUserOk();
     }
     render() {
@@ -35,7 +36,7 @@ export default class User extends Component {
                     onChange={this.hUser}
                 />
                 <input 
-                    type = "text"
+                    type = "password"
                     value = {this.props.password}
                     placeholder = "Contraseña"
                     onChange={this.hPass}

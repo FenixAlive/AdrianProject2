@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import io from 'socket.io-client';
 
-export default class Estadisticas extends Component {
-    constructor() {
+export default class Resultados extends Component {
+    constructor(){
         var _isMounted = false;
         super();
         this.state = {
@@ -34,13 +34,11 @@ export default class Estadisticas extends Component {
     }
     componentWillUnmount() {
         this._isMounted = false;
-    }    
-
+    }   
     render() {
         return (
-            <div id="estadistica">
-                <div>Estadisticas</div>
-                {}
+            <div>
+                Resultados, solo Adminsitrador los ve
             </div>
         )
     }

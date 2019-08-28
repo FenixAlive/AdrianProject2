@@ -34,6 +34,8 @@ export default class Options extends Component {
                     options,
                     answer: {opt: '', ans: ''},
                     answered: false
+                }, () =>{
+                    sessionStorage.setItem('stateQuestion', JSON.stringify(this.state));
                 })
             }
         });
@@ -54,6 +56,8 @@ export default class Options extends Component {
                     answer: {opt: '', ans: ''},
                     answered: false,
                     gameOver: true
+                }, () => {
+                    sessionStorage.setItem('stateQuestion', JSON.stringify(this.state));
                 })
             }
         })
@@ -67,21 +71,35 @@ export default class Options extends Component {
                     answer: {opt: '', ans: ''},
                     answered: false,
                     gameOver: false
+                }, () => {
+                    sessionStorage.setItem('stateQuestion', JSON.stringify(this.state));
                 })
             }
         })
+        if(!this.state.gameOver && this.state.question == '' && sessionStorage.getItem('stateQuestion')){
+            var sq = JSON.parse(sessionStorage.getItem('stateQuestion'));
+            this.setState({
+                nq: sq.nq,
+                question: sq.question,
+                options: sq.options,
+                answer: sq.answer,
+                answered: sq.answered,
+            })
+        }
     }
     componentWillUnmount() {
         this._isMounted = false;
     }    
 
     handleReboot(){        
-        this.socket.emit('reboot', this.props.myId);
+        this.props.reboot()
     }
     handleOpc(option) {
         this.setState({
             answered: true,
             answer: option
+        }, ()=>{
+            sessionStorage.setItem('stateQuestion', JSON.stringify(this.state));
         })
         let ans = {
             q: this.state.nq,
@@ -95,7 +113,7 @@ export default class Options extends Component {
     render() {
         //boton reiniciar juego
         if(this.props.admin) {
-            var btnReboot = <button className="btn reboot" onClick={this.handleReboot}>Reiniciar Partida</button>
+            var btnReboot = <button className="btn reboot" onClick={this.handleReboot}>Reiniciar y Borrar Datos</button>
         }else{
             var btnReboot = '';
         }
@@ -112,10 +130,8 @@ export default class Options extends Component {
                 })}
         </div>
         }
-        // preguntar al terminar partida si reiniciar y mostrar calificaciónes
-        io.sockets.emit('gameOver', '');
         if(this.state.gameOver){
-            var qGameOver = <button className="btn btnGameOver" onClick={this.handleGameOver}>¿Iniciar Nueva Partida?</button>
+            var qGameOver = <button className="btn btnGameOver" onClick={this.handleGameOver}>¿Iniciar nuevamente !!quitar al terminar?</button>
             if(this.props.userOk){
                 var calificacion = <div id="Calificación">Tu calificación: </div>
             }
@@ -139,7 +155,7 @@ export default class Options extends Component {
             return (
                 <React.Fragment>
                     <Time time={this.state.time} nq={this.state.nq}/>
-                    <div className="wait"> Espere a que la partida actual termine</div>
+                    <div className="sorry"> Lo siento, llegaste tarde ...</div>
                     {qGameOver}
                 </React.Fragment>
             )

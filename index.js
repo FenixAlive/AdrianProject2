@@ -90,7 +90,7 @@ io.on('connection', socket => {
         console.log('respOk: ', respuestasOk)
     });
     socket.on('newUser', user =>{
-        if(user['user'] !== '' && user['pass'] !== ''){
+        if(user.hasOwnProperty('user') && user.hasOwnProperty('pass') && user['user'] !== '' && user['pass'] !== ''){
             var ok = users.indexOf(user);
             if(ok === -1){
                 //administrador
