@@ -16,9 +16,7 @@ export default class Options extends Component {
             answered: false,
             gameOver: false
         }
-        this.handleReboot = this.handleReboot.bind(this);
         this.handleOpc = this.handleOpc.bind(this);
-        this.handleGameOver = this.handleGameOver.bind(this);
     }
 
     componentDidMount() {
@@ -90,10 +88,6 @@ export default class Options extends Component {
     componentWillUnmount() {
         this._isMounted = false;
     }    
-
-    handleReboot(){        
-        this.props.reboot()
-    }
     handleOpc(option) {
         this.setState({
             answered: true,
@@ -107,16 +101,7 @@ export default class Options extends Component {
         }
         this.props.hans(ans)
     }
-    handleGameOver() {
-        this.socket.emit('rebootGameOver', '');
-    }
     render() {
-        //boton reiniciar juego
-        if(this.props.admin) {
-            var btnReboot = <button className="btn reboot" onClick={this.handleReboot}>Reiniciar y Borrar Datos</button>
-        }else{
-            var btnReboot = '';
-        }
         //pregunta contestada
         if(this.state.answered){
             var options = <div>Respondiste: <span>{this.state.answer.opt}) </span>  <span>{this.state.answer.ans}</span></div>
@@ -130,14 +115,6 @@ export default class Options extends Component {
                 })}
         </div>
         }
-        if(this.state.gameOver){
-            var qGameOver = <button className="btn btnGameOver" onClick={this.handleGameOver}>¿Iniciar nuevamente !!quitar al terminar?</button>
-            if(this.props.userOk){
-                var calificacion = <div id="Calificación">Tu calificación: </div>
-            }
-        }else{
-            var qGameOver = '';
-        }
         //render return
         if(this.props.userOk) {
             return (
@@ -146,8 +123,6 @@ export default class Options extends Component {
                     <div className="qContainer">
                         <div id="question">Pregunta: {this.state.question}</div>
                         {options}
-                        {btnReboot}
-                        {qGameOver}
                     </div>
                 </React.Fragment>
             )
@@ -156,7 +131,6 @@ export default class Options extends Component {
                 <React.Fragment>
                     <Time time={this.state.time} nq={this.state.nq}/>
                     <div className="sorry"> Lo siento, llegaste tarde ...</div>
-                    {qGameOver}
                 </React.Fragment>
             )
         }

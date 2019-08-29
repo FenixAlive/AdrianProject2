@@ -35,11 +35,11 @@ var passAdmin = '1234';
 var gameBegin = false;
 var vgameOver = false;
 var juegoId = 0;
-var ttime = 10; //cambiar a 60
+var ttime = 5; //cambiar a 60
 var qtime = ttime;
 var numPreg = 0;
 const totpreg = bdquestions.length;
-var users = [];
+var users = {};
 var respuestas = {};
 var respuestasOk = {};
 
@@ -47,8 +47,9 @@ var respuestasOk = {};
 io.on('connection', socket => {
     console.log('socket connected: ', socket.id);
     socket.emit('myId', socket.id);
-    socket.on('beginGame', data => {
-        if (data['user'] == userAdmin && data['pass'] == passAdmin) {
+    socket.on('beginGame', user => {
+        user['user'] = user['user'].toLowerCase();
+        if (user['user'] == userAdmin && user['pass'] == passAdmin) {
             console.log("let's the games begin");
             gameBegin = true;
             io.sockets.emit('beginGame', gameBegin);
@@ -59,17 +60,16 @@ io.on('connection', socket => {
         }
     });
     socket.on('amIAdmin', user => {
+        user['user'] = user['user'].toLowerCase();
         if(user['user'] == userAdmin && user['pass'] == passAdmin){
             socket.emit('ImAdmin', '');
         }
     });
-    socket.on('reboot', data => {
-        if (data['user'] == userAdmin && data['pass'] == passAdmin) {
+    socket.on('reboot', user => {
+        user['user'] = user['user'].toLowerCase();
+        if (user['user'] == userAdmin && user['pass'] == passAdmin) {
             limpiarJuego();
         }
-    });
-    socket.on('rebootGameOver', () => {
-        limpiarJuego();
     });
     socket.on('isGameBegin', () => {
         socket.emit('beginGame', gameBegin);
@@ -80,6 +80,7 @@ io.on('connection', socket => {
         }
     });
     socket.on('answer', answer => {
+        answer['id'] = answer['id'].toLowerCase();
         console.log('Answer: ', answer)
         if ( !respuestas.hasOwnProperty(answer['id']) ) {
             respuestas[answer['id']] = {};
@@ -90,43 +91,70 @@ io.on('connection', socket => {
         console.log('respOk: ', respuestasOk)
     });
     socket.on('newUser', user =>{
+        user['user'] = user['user'].toLowerCase();
         if(user.hasOwnProperty('user') && user.hasOwnProperty('pass') && user['user'] !== '' && user['pass'] !== ''){
-            var ok = users.indexOf(user);
-            if(ok === -1){
+            var ok = users.hasOwnProperty(user['user']);
+            if(!ok){
                 //administrador
-                if(user['user'].toLowerCase() == userAdmin && user['pass'] == passAdmin){
-                    users.push(user);
+                if(user['user'] == userAdmin && user['pass'] == passAdmin){
+                    users[user['user']] = user['pass'];
                     respuestas[user['user']] = {};
                     respuestasOk[user['user']] = [];
                     io.sockets.emit('resultados', {ans: respuestas, res: respuestasOk});
                     socket.emit('ImAdmin', '');
-                }else if (user['user'].toLowerCase() == userAdmin){
-                    console.log("contra incorr")
+                }else if (user['user'] == userAdmin){
+                    console.log("contra incorrecta admin")
                     socket.emit('userNotValid', '');
                 }else {
-                    users.push(user);
+                    users[user['user']] = user['pass'];
                     respuestas[user['user']] = {};
                     respuestasOk[user['user']] = [];
                     io.sockets.emit('resultados', {ans: respuestas, res: respuestasOk});
                 }
             }else{
-                socket.emit('userNotValid', '');
+                checkUser(user, socket);
             }
         }
     });
     socket.on('deleteUser', user => {
-        var i = users.indexOf(user);
-        if (i !== -1) {
-            users.splice(i , 1);
-            delete respuestas[user['user']];
-            delete respuestasOk[user['user']];
-            io.sockets.emit('resultados', {ans: respuestas, res: respuestasOk});
+        user['user'] = user['user'].toLowerCase();
+        var ok = users.hasOwnProperty(user['user']);
+        if (ok) {
+            if(users[user['user']] == user['pass']) {
+                delete users[user['user']]
+                delete respuestas[user['user']];
+                delete respuestasOk[user['user']];
+                io.sockets.emit('resultados', {ans: respuestas, res: respuestasOk});
+            }
         }
-
     });
-})
+    socket.on('checkUser', user => {
+        checkUser(user, socket);
+    })
+
+})//finaliza socket
 
 //funciones adicionales para juego
+
+function checkUser(user, socket) {
+    user['user'] = user['user'].toLowerCase();
+    var ok = users.hasOwnProperty(user['user']);
+        if (ok) {
+            if(users[user['user']] == user['pass']) {
+                if(user['user'].toLowerCase() == userAdmin && user['pass'] == passAdmin){
+                    socket.emit('ImAdmin', '');
+                }
+                io.sockets.emit('resultados', {ans: respuestas, res: respuestasOk});
+                console.log(respuestas, respuestasOk)
+                //por ahora le envio todo
+                //socket.emit('resultadosPersonales', {ans: respuestas[user['user']], res: respuestasOk[user['user']]});
+            }else{
+                socket.emit('userNotValid', '');
+            }
+        }else{
+            socket.emit('userNotValid', '');
+        }
+}
 
 function checkAnswer(answer) {
     var isequal = answer['q'] - respuestasOk[answer['id']].length;
@@ -192,7 +220,7 @@ function limpiarJuego(){
     juegoId = 0;
     numPreg = 0;
     qtime = ttime;
-    users = [];
+    users = {};
     respuestas = {};
     respuestasOk = {};
     io.sockets.emit('resultados', {ans: respuestas, res: respuestasOk});

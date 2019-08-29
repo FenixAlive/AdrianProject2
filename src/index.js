@@ -4,13 +4,14 @@ import User from './User';
 import Options from './Options'
 import Estadisticas from './Estadisticas'
 import Footer from './Footer'
-import Resultados from './Resultados'
+import ResultadosTotales from './ResultadosTotales'
+import ResultadosPersonales from './ResultadosPersonales'
 import './App.css'
+import 'bootstrap/dist/css/bootstrap.css';
 
 import io from 'socket.io-client';
-//TODO: ponerle nuevo componente a administrador para ver respuestas por usuario
-//al tener game over solo mostrar componente con estadisticas, si no esta registrado pedir datos y si no esta en el sistema decirle que bye,
-//si es el administrador permitirle ver las calificaciones de todos y si es un usuario pasarle sus calificaciones
+//TODO: barra de estado al registrarse
+//ver que onda con los resultados
 class App extends Component {
     constructor() {
         super();
@@ -21,9 +22,12 @@ class App extends Component {
             password: '',
             userOk: false,
             gameBegins: false,
-            gameOver: false
+            gameOver: false,
+            answers: {},
+            results: {}
         }
         this.handleUserOk = this.handleUserOk.bind(this);
+        this.handleUserOver = this.handleUserOver.bind(this);
         this.handleUser = this.handleUser.bind(this);
         this.handlePass = this.handlePass.bind(this);
         this.handleBeginGame = this.handleBeginGame.bind(this);
@@ -61,9 +65,11 @@ class App extends Component {
                 this.setState({
                     username: sessionStorage.getItem('username'),
                     password: sessionStorage.getItem('password'),
-                    userOk: sessionStorage.getItem('userOk')
+                    userOk: JSON.parse(sessionStorage.getItem('userOk'))
                 }, () => {
-                    this.socket.emit('amIAdmin', {user: this.state.username, pass: this.state.password});
+                    if (JSON.parse(sessionStorage.getItem('userOk'))){
+                        this.socket.emit('newUser', {user: this.state.username, pass: this.state.password});
+                    }
                 })
             }
         }else{
@@ -79,6 +85,7 @@ class App extends Component {
         })
         this.socket.on('gameOver', () => {
                 this.setState({
+                    gameBegins: false,
                     gameOver: true
                 })
         })
@@ -92,7 +99,16 @@ class App extends Component {
             }
             this.setState({
                 gameBegins: false,
-                gameOver: false
+                gameOver: false,
+                answers: {},
+                results: {}
+            })
+        })
+        //resultados
+        this.socket.on('resultados', datos => {
+            this.setState({
+                answers: datos.ans,
+                results: datos.res
             })
         })
     } //termina didMount
@@ -103,13 +119,32 @@ class App extends Component {
         })
     }
     handleUserOk() {
-        if(this.state.username != '' && this.state.password != ''){
+        if(this.state.username != '' && this.state.password != '' && !this.state.gameOver){
             if(!this.state.userOk){
                 this.socket.emit('newUser', {user: this.state.username, pass: this.state.password});
                 sessionStorage.setItem('username', this.state.username);
                 sessionStorage.setItem('password', this.state.password);
             }else{
                 this.socket.emit('deleteUser', {user: this.state.username, pass: this.state.password});
+            }
+            this.setState({
+                userOk: !this.state.userOk,
+                admin: false
+            },()=>{
+                sessionStorage.setItem('userOk', this.state.userOk);
+            })
+        }
+    }
+    handleUserOver(){
+        if(this.state.gameOver && this.state.username != '' && this.state.password != ''){
+            if(!this.state.userOk){
+                this.setState({
+                    admin: false
+                }, () => {
+                    this.socket.emit('checkUser', {user: this.state.username, pass: this.state.password});
+                    sessionStorage.setItem('username', this.state.username);
+                    sessionStorage.setItem('password', this.state.password);
+                })
             }
             this.setState({
                 userOk: !this.state.userOk
@@ -139,42 +174,96 @@ class App extends Component {
     }
 
     render() {
+        //boton reiniciar todo
+        if(this.state.admin) {
+            var btnReboot = <button className="btn btn-outline-danger botonReiniciar" onClick={this.handleReboot}>Reiniciar Todo y Borrar Datos</button>
+        }else{
+            var btnReboot = '';
+        }
+        //usuario nav y boton cambiar
+        if(this.state.userOk){
+            var usuarioDiv = <div className="usuarioOk">
+                        <div className="usuarioNombre">{this.state.username}</div>
+                        <div className="botonUserDiv mx-3 my-2"><button 
+                            onClick={(this.state.gameOver) ? this.handleUserOver : this.handleUserOk} 
+                            className="btn btn-outline-secondary"
+                        >
+                                Cambiar
+                        </button></div>
+                    </div>
+        }else{
+            var usuarioDiv = '';
+        }
         //boton iniciar partida
         if(this.state.admin && !this.state.gameOver) {
-            var btnIniciar = <button onClick={this.handleBeginGame}>Iniciar Cuestionario</button>
+            var btnIniciar = <button onClick={this.handleBeginGame} className="btn btn-outline-primary mx-3 my-3">Iniciar Cuestionario</button>
         }else if(this.state.admin) {
-            var btnIniciar = <Resultados />;
-        }else{
-            var btnIniciar = '';
+            var btnIniciar = <ResultadosTotales />;
+        }else if(this.state.userOk) {
+            var btnIniciar = <ResultadosPersonales />;
+        }else {
+            var btnIniciar = "";
         }
         if(this.state.gameBegins) {
                 return (
-                    <React.Fragment>
-                        <Estadisticas />
-                        <Options
-                            hans={this.handleAnswer} 
-                            admin={this.state.admin} 
-                            reboot={this.handleReboot}
-                            userOk={this.state.userOk}
+                    <div className="container-fluid contenido">
+                        <div className="navbar navbar-expand-lg navbar-light bg-light d-flex justify-content-around">
+                            <div className="titulo navbar-text mx-3 my-2">Examen de Adrian</div>
+                            {usuarioDiv}
+                            <div className="divBtnReiniciar mx-3 my-2">{btnReboot}</div>
+                        </div>
+                        <div className="main">
+                            <Options
+                                hans={this.handleAnswer} 
+                                userOk={this.state.userOk}
+                            />
+                        </div>
+                        <Estadisticas 
+                                ans={this.state.answers} 
+                                res={this.state.results} 
                         />
                         <Footer />
-                    </React.Fragment>
+                    </div>
                 )
         }else {
             return (
-                <React.Fragment>
-                    <Estadisticas />
-                    <User
-                        userOk={this.state.userOk} 
-                        username={this.state.username} 
-                        password={this.state.password}
-                        handleUser={this.handleUser}
-                        handleUserOk={this.handleUserOk}
-                        handlePass = {this.handlePass}
+                <div className="container-fluid contenido">
+                    <div className="navbar navbar-expand-lg navbar-light bg-light d-flex justify-content-around">
+                        <div className="titulo navbar-text mx-3 my-2">Examen de Adrian</div>
+                        {usuarioDiv}
+                        <div className="divBtnReiniciar mx-3 my-2">{btnReboot}</div>
+                    </div>
+                    <div className="main container-fluid">
+                        <User
+                            userOk={this.state.userOk} 
+                            gameOver={this.state.gameOver}
+                            username={this.state.username} 
+                            password={this.state.password}
+                            handleUser={this.handleUser}
+                            handleUserOk={this.handleUserOk}
+                            handleUserOver={this.handleUserOver}
+                            handlePass = {this.handlePass}
+                        />
+                        {btnIniciar}
+                        <ResultadosPersonales 
+                            ans={this.state.answers} 
+                            res={this.state.results}
+                            gameOver={this.state.gameOver}
+                            admin={this.state.admin}
+                        />
+                        <ResultadosTotales 
+                            ans={this.state.answers} 
+                            res={this.state.results}
+                            gameOver={this.state.gameOver}
+                            admin={this.state.admin}
+                        />
+                    </div>
+                    <Estadisticas 
+                                ans={this.state.answers} 
+                                res={this.state.results} 
                     />
-                    {btnIniciar}
                     <Footer />
-                </React.Fragment>
+                </div>
             )
         }
     }

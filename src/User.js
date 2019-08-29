@@ -16,38 +16,41 @@ export default class User extends Component {
     }
     hUserOk() {
         //si la contraseña esta vacia mandar error
-        this.props.handleUserOk();
+        if(this.props.gameOver){
+            this.props.handleUserOver();
+        }else{
+            this.props.handleUserOk();
+        }
     }
     render() {
-        //boton usuario
-        if(this.props.userOk) {
-            var user = <React.Fragment>
-                <div>
-                    <span>{this.props.username}</span>
-                    <button onClick={this.hUserOk}>Cambiar</button>
+        //usuario
+        if(!this.props.userOk) {
+            return (
+                <div id="user" className="container">
+                    <div className="form-group">
+                        <input 
+                            type = "text"
+                            className="form-control my-3"
+                            value = {this.props.username}
+                            placeholder = "Nombre de Usuario"
+                            onChange={this.hUser}
+                        />
+                        <input 
+                            type = "password"
+                            className="form-control my-3"
+                            value = {this.props.password}
+                            placeholder = "Contraseña"
+                            onChange={this.hPass}
+                            required
+                        />
+                        <button onClick={this.hUserOk} className="btn btn-outline-success btn-block">Enviar</button>
+                    </div>
                 </div>
-                </React.Fragment>
+            )
         }else {
-            var user = <div>
-                <input 
-                    type = "text"
-                    value = {this.props.username}
-                    placeholder = "Nombre de Usuario"
-                    onChange={this.hUser}
-                />
-                <input 
-                    type = "password"
-                    value = {this.props.password}
-                    placeholder = "Contraseña"
-                    onChange={this.hPass}
-                />
-                <button onClick={this.hUserOk}>Enviar</button>
-            </div>
+            return (
+                <React.Fragment />
+            )
         }
-        return (
-            <div id="user">
-                {user}
-            </div>
-        )
     }
 }
