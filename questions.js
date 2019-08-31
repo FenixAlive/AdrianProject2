@@ -1,6 +1,6 @@
 module.exports = [
     {
-        question: "¿1?",
+        question: "¿1-Qdjff qegqeqo qerqero qerg oevf ergo qerbqerb erobqeofbo  eobefbeb effbl qeb ebqerb ebebetb tb etbebqebqeb qebebefbqebqeb qefbqfbqb?",
         options: [
             {opt: 'a', ans: "a1"},
             {opt: 'b', ans: "b1"},
@@ -9,7 +9,7 @@ module.exports = [
         ]
     },
     {
-        question: "¿2?",
+        question: "¿2 lorem ipsum?",
         options: [
             {opt: 'a', ans: "a2"},
             {opt: 'b', ans: "b2"},
@@ -18,7 +18,7 @@ module.exports = [
         ]
     },
     {
-        question: "¿3?",
+        question: "¿3 quien eres?",
         options: [
             {opt: 'a', ans: "a3"},
             {opt: 'b', ans: "b3"},
@@ -27,7 +27,7 @@ module.exports = [
         ]
     },
     {
-        question: "¿4?",
+        question: "¿4-Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim dignissimos veritatis voluptatibus placeat saepe, harum necessitatibus esse veniam quisquam iure corporis voluptas minus ipsam odit perspiciatis eius ut, quia voluptatem!?",
         options: [
             {opt: 'a', ans: "a4"},
             {opt: 'b', ans: "b4"},
@@ -45,7 +45,7 @@ module.exports = [
         ]
     },
     {
-        question: "¿6?",
+        question: "¿6-jejjejejejejjejeje?",
         options: [
             {opt: 'a', ans: "a6"},
             {opt: 'b', ans: "b6"},
@@ -54,7 +54,7 @@ module.exports = [
         ]
     },
     {
-        question: "¿7?",
+        question: "¿7-Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim dignissimos veritatis voluptatibus placeat saepe, harum necessitatibus esse veniam quisquam iure corporis voluptas minus ipsam odit perspiciatis eius ut, quia voluptatem!?",
         options: [
             {opt: 'a', ans: "a7"},
             {opt: 'b', ans: "b7"},

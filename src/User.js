@@ -23,10 +23,12 @@ export default class User extends Component {
         }
     }
     render() {
-        //usuario
+        //usuario 
+        //TODO: poner advertencia sobre no dejar contraseña vacia y no olvidarla despues de iniciar cuestionario
         if(!this.props.userOk) {
             return (
                 <div id="user" className="container">
+                    <div className="tituloUser">{(this.props.gameOver ) ? "" : "Registra nuevos datos o " }Inicia Sesión</div>
                     <div className="form-group">
                         <input 
                             type = "text"

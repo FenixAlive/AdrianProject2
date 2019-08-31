@@ -14,7 +14,8 @@ export default class Options extends Component {
             options: [],
             answer: {opt: '', ans: ''},
             answered: false,
-            gameOver: false
+            gameOver: false,
+            colors: ['primary', 'danger', 'success', 'warning', 'secondary', 'info'] 
         }
         this.handleOpc = this.handleOpc.bind(this);
     }
@@ -59,24 +60,10 @@ export default class Options extends Component {
                 })
             }
         })
-        this.socket.on('reboot', () => {
-            if(this._isMounted){
-                this.setState({
-                    time: '',
-                    nq: 0,
-                    question: '',
-                    options: [],
-                    answer: {opt: '', ans: ''},
-                    answered: false,
-                    gameOver: false
-                }, () => {
-                    sessionStorage.setItem('stateQuestion', JSON.stringify(this.state));
-                })
-            }
-        })
-        if(!this.state.gameOver && this.state.question == '' && sessionStorage.getItem('stateQuestion')){
+        if(this.props.gameBegins && !this.state.gameOver && this.state.question == '' && sessionStorage.getItem('stateQuestion')){
             var sq = JSON.parse(sessionStorage.getItem('stateQuestion'));
             this.setState({
+                time: '',
                 nq: sq.nq,
                 question: sq.question,
                 options: sq.options,
@@ -86,6 +73,28 @@ export default class Options extends Component {
         }
     }
     componentWillUnmount() {
+        if(this._isMounted){
+            console.log("Reboot despues de montar")
+            this.setState({
+                time: '',
+                nq: 0,
+                question: '',
+                options: [],
+                answer: {opt: '', ans: ''},
+                answered: false,
+                gameOver: false
+            }, () => {
+                console.log(sessionStorage.getItem('stateQuestion'))
+            })
+            const statezero = {
+                nq: 0,
+                question: '',
+                options: [],
+                answer: {opt: '', ans: ''},
+                answered: false
+            }
+            sessionStorage.setItem('stateQuestion', JSON.stringify(statezero));
+        }
         this._isMounted = false;
     }    
     handleOpc(option) {
@@ -106,9 +115,9 @@ export default class Options extends Component {
         if(this.state.answered){
             var options = <div>Respondiste: <span>{this.state.answer.opt}) </span>  <span>{this.state.answer.ans}</span></div>
         }else{
-            var options = <div id="options">
+            var options = <div id="options" className="">
                 {this.state.options.map((el, idx) => {
-                return <button id={el.opt} key={el.opt} onClick={() => this.handleOpc(el)}>
+                return <button className={"my-3 py-3 btn btn-block btn-"+this.state.colors[idx]} id={el.opt} key={el.opt} onClick={() => this.handleOpc(el)}>
                             <span>{el.opt}) </span> 
                             <span>{el.ans}</span>
                         </button>
@@ -118,20 +127,22 @@ export default class Options extends Component {
         //render return
         if(this.props.userOk) {
             return (
-                <React.Fragment>
-                    <Time time={this.state.time} nq={this.state.nq}/>
-                    <div className="qContainer">
-                        <div id="question">Pregunta: {this.state.question}</div>
-                        {options}
+                <div id="opContainer" className="">
+                    <div className="container">
+                        <Time time={this.state.time} nq={this.state.nq}/>
+                        <div className="card bg-dark my-3">
+                            <div id="question" className="card-header"><p className="mx-3 my-3"><b>{this.state.question}</b></p></div>
+                            <div className="card-text mx-3">{options}</div> 
+                        </div>
                     </div>
-                </React.Fragment>
+                </div>
             )
         }else {
             return (
-                <React.Fragment>
+                <div id="opContainer" className="container">
                     <Time time={this.state.time} nq={this.state.nq}/>
-                    <div className="sorry"> Lo siento, llegaste tarde ...</div>
-                </React.Fragment>
+                    <div className="sorry"> Lo siento, llegaste tarde, ya no puedes ingresar.</div>
+                </div>
             )
         }
     }

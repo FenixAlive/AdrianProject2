@@ -18,7 +18,7 @@ export default class ResultadosTotales extends Component {
     render() {
         if(this.props.admin && this.props.gameOver) {
             return (
-                <div id="resTot" className="container my-3 py-1"> 
+                <div id="resTot" className="bg-dark  my-5 py-3"> 
                     Resultados Totales, solo Adminsitrador los ve
                 </div>
             )

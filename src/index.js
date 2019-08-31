@@ -10,8 +10,8 @@ import './App.css'
 import 'bootstrap/dist/css/bootstrap.css';
 
 import io from 'socket.io-client';
-//TODO: barra de estado al registrarse
-//ver que onda con los resultados
+//TODO: arreglar vista preguntas y resultados, ver si no mando toda la información de resultados a todos los usuarios, ver graficas en html
+//TODO Futuro: ver como agregar base de datos y deploy
 class App extends Component {
     constructor() {
         super();
@@ -57,7 +57,7 @@ class App extends Component {
             }, () => {
                 sessionStorage.setItem('userOk', this.state.userOk);
                 //TODO: cambiar alert por algo mas amigable
-                alert("Usuario no valido, buscar otro");
+                alert("Usuario no valido");
             })
         })
         if(this.state.username == '' || this.state.password == ''){
@@ -183,7 +183,7 @@ class App extends Component {
         //usuario nav y boton cambiar
         if(this.state.userOk){
             var usuarioDiv = <div className="usuarioOk">
-                        <div className="usuarioNombre">{this.state.username}</div>
+                        <h5 className="usuarioNombre">{this.state.username}</h5>
                         <div className="botonUserDiv mx-3 my-2"><button 
                             onClick={(this.state.gameOver) ? this.handleUserOver : this.handleUserOk} 
                             className="btn btn-outline-secondary"
@@ -196,11 +196,7 @@ class App extends Component {
         }
         //boton iniciar partida
         if(this.state.admin && !this.state.gameOver) {
-            var btnIniciar = <button onClick={this.handleBeginGame} className="btn btn-outline-primary mx-3 my-3">Iniciar Cuestionario</button>
-        }else if(this.state.admin) {
-            var btnIniciar = <ResultadosTotales />;
-        }else if(this.state.userOk) {
-            var btnIniciar = <ResultadosPersonales />;
+            var btnIniciar = <button onClick={this.handleBeginGame} className="container btn btn-primary my-5 py-3 btn-block">Iniciar Cuestionario</button>
         }else {
             var btnIniciar = "";
         }
@@ -216,6 +212,7 @@ class App extends Component {
                             <Options
                                 hans={this.handleAnswer} 
                                 userOk={this.state.userOk}
+                                gameBegins={this.state.gameBegins}
                             />
                         </div>
                         <Estadisticas 
@@ -233,7 +230,7 @@ class App extends Component {
                         {usuarioDiv}
                         <div className="divBtnReiniciar mx-3 my-2">{btnReboot}</div>
                     </div>
-                    <div className="main container-fluid">
+                    <div className="main">
                         <User
                             userOk={this.state.userOk} 
                             gameOver={this.state.gameOver}

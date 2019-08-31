@@ -1,6 +1,7 @@
 
 body {
     font-family: 'Montserrat', sans-serif !important;
+    font-size: 1em !important;
 }
 .contenido{
 
@@ -20,14 +21,25 @@ body {
     padding: 1.7em 1.3em;
 }
 #resTot{
-    background-color: #f9f9f9;
-    color: #333;
+    color: #f9f9f9;;
     padding: 1.7em 1.3em;
-    margin: 1em auto;
+}
+#resPer {
+    color: #f9f9f9;;
+    padding: 2em 1.3em;
+}
+#opContainer{
+    background-color: #333;
+    color: #f9f9f9;
+    padding: 1.7em 1.3em;
+    margin: 3em 0;
 }
 .usuarioOk{
     display: inline !important;
     color: #333 !important;
+    border: 0.1em solid #777;
+    padding: 0.3em 0 0.3em 2em;
+    border-radius: 0.3em;
 }
 .botonUserDiv{
     display: inline !important;
@@ -35,10 +47,11 @@ body {
 }
 .usuarioNombre{
     display: inline !important;
+    margin-right: 1em;
 }
 footer{
-    position: fixed;
-    bottom: 0% !important;
+    position: relative;
+    bottom: 0px !important;
     width: 100%;
     text-align: center;
 }
@@ -51,15 +64,15 @@ footer{
 input{
     text-align: center !important;
 }
-.botonReiniciar {
-    color: #733 !important;
+.btn{
+    box-shadow: 0.1em 0.1em 0.17em  #333;
 }
-.botonReiniciar:hover {
-    color: #fafafa !important;
+.card{
+    box-shadow: 0.3em 0.3em 0.7em #333;
 }
-.divBtnReiniciar{
-
-}
-.answer {
-
+.userEsta{
+    border-radius: 0.3em;
+    box-shadow: 0.07em 0.07em 0.07em #777;
+    padding: 0.5em 0.7em;
+    margin: 0.9em 0.5em;
 }

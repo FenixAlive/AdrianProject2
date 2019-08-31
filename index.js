@@ -223,6 +223,6 @@ function limpiarJuego(){
     users = {};
     respuestas = {};
     respuestasOk = {};
-    io.sockets.emit('resultados', {ans: respuestas, res: respuestasOk});
     io.sockets.emit('reboot', '');
+    io.sockets.emit('resultados', {ans: respuestas, res: respuestasOk});
 }
