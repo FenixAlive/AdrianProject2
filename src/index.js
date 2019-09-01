@@ -197,6 +197,8 @@ class App extends Component {
         //boton iniciar partida
         if(this.state.admin && !this.state.gameOver) {
             var btnIniciar = <button onClick={this.handleBeginGame} className="container btn btn-primary my-5 py-3 btn-block">Iniciar Cuestionario</button>
+        }else if (!this.state.admin && !this.state.gameOver){
+            var btnIniciar = <div className="bg-dark  my-5 py-3 card container text-white">Espere a que el Administrador Inicie el Cuestionario. </div>
         }else {
             var btnIniciar = "";
         }

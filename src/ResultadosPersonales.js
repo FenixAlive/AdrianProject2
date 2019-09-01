@@ -19,14 +19,8 @@ export default class ResultadosPersonales extends Component {
     render() {
         if(!this.props.admin && this.props.gameOver) {
             return (
-                <div id="resPer" className="bg-dark  my-5 py-3">
+                <div className="bg-dark  text-white my-5 py-3 card">
                     Resultados personales
-                </div>
-            )
-        }else if (!this.props.admin){
-            return (
-                <div id="resPer" className="bg-dark  my-5 py-3">
-                    Espere a que el Administrador Inicie el Cuestionario. 
                 </div>
             )
         }else{

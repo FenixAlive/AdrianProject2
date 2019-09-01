@@ -18,8 +18,13 @@ export default class ResultadosTotales extends Component {
     render() {
         if(this.props.admin && this.props.gameOver) {
             return (
-                <div id="resTot" className="bg-dark  my-5 py-3"> 
-                    Resultados Totales, solo Adminsitrador los ve
+                <div className="card bg-dark text-white my-5"> 
+                    <div className="card-header">
+                        Resultados Totales
+                    </div>
+                    <div className="card-body">
+                        solo Adminsitrador los ve
+                    </div>
                 </div>
             )
         }else{

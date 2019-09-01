@@ -23,8 +23,11 @@ export default class User extends Component {
         }
     }
     render() {
-        //usuario 
-        //TODO: poner advertencia sobre no dejar contraseña vacia y no olvidarla despues de iniciar cuestionario
+        if(this.props.password == '') {
+            var passError = <div id="userError" className="alert bg-danger text-white my-4">La contraseña no puede estar vacia</div>;
+        }else{
+            var passError;
+        }
         if(!this.props.userOk) {
             return (
                 <div id="user" className="container">
@@ -45,6 +48,8 @@ export default class User extends Component {
                             onChange={this.hPass}
                             required
                         />
+                        {passError}
+                        <div id="userWarning" className="alert bg-info my-4 text-white">Recuerde sus datos, despues del cuestionario no podrá recuperarlos</div>
                         <button onClick={this.hUserOk} className="btn btn-outline-success btn-block">Enviar</button>
                     </div>
                 </div>

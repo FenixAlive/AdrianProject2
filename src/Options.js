@@ -113,7 +113,10 @@ export default class Options extends Component {
     render() {
         //pregunta contestada
         if(this.state.answered){
-            var options = <div>Respondiste: <span>{this.state.answer.opt}) </span>  <span>{this.state.answer.ans}</span></div>
+            var options = <div className="my-3 card bg-success">
+                            <div className="card-header">Tu Respuesta</div> 
+                            <div className="card-body"><span>{this.state.answer.opt}) </span>  <span>{this.state.answer.ans}</span></div>
+                          </div>
         }else{
             var options = <div id="options" className="">
                 {this.state.options.map((el, idx) => {

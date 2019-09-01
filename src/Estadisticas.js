@@ -54,29 +54,31 @@ export default class Estadisticas extends Component {
 //{(this.state.numUsers-1 === idx) ? el : el+", "}
     render() {
         return (
-            <div id="estadistica">
-                <div className="card">
+                <div className="card estadistica">
                     <h5 className="card-header">Estadisticas</h5>
                     <div className="card-body">
-                        <h6 className="card-title">Usuarios</h6>
-                        <div className="card-text my-2">
-                            {this.state.users.map( (el, idx) => {
-                                return <span key={idx} className={this.state.colors[Math.floor(Math.random()*7)]+" userEsta"}>
-                                    {el}
-                                </span>
-                            })}
+                        <div className="card my-3">
+                            <h6 className="card-header">Usuarios</h6>
+                            <div className="card-body my-2">
+                                {this.state.users.map( (el, idx) => {
+                                    return <span key={idx} className={this.state.colors[Math.floor(Math.random()*7)]+" userEsta"}>
+                                        {el}
+                                    </span>
+                                })}
+                            </div>
                         </div>
-                        <h6 className="card-title">Promedios</h6>
-                        <div className="card-text">
-                            {this.state.total.map( (el, idx) => {
-                                return <div key={idx} className="my-3">
-                                    Pregunta {idx+1}: {el} / {this.state.numUsers} = {(el*100/this.state.numUsers).toFixed(2)} %
-                                </div>
-                            })}
+                        <div className="card my-3">
+                            <h6 className="card-header">Promedios</h6>
+                            <div className="card-body">
+                                {this.state.total.map( (el, idx) => {
+                                    return <div key={idx} className="my-3">
+                                        Pregunta {idx+1}: {el} / {this.state.numUsers} = {(el*100/this.state.numUsers).toFixed(2)} %
+                                    </div>
+                                })}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
         )
     }
 }
