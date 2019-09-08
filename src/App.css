@@ -71,3 +71,6 @@ input{
     padding: 0.5em 0.7em;
     margin: 0.9em 0.5em;
 }
+.card {
+    overflow: auto !important;
+}

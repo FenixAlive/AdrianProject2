@@ -131,6 +131,10 @@ io.on('connection', socket => {
     socket.on('checkUser', user => {
         checkUser(user, socket);
     })
+    socket.on("whichQuestion", ()=>{
+        var question = emitQuestion();
+        io.sockets.emit('question', question)
+    })
 
 })//finaliza socket
 
@@ -159,6 +163,10 @@ function checkUser(user, socket) {
 function checkAnswer(answer) {
     var isequal = answer['q'] - respuestasOk[answer['id']].length;
     if (isequal !== 0) {
+        //si se envio información doble
+        if(isequal < 0) {
+            return;
+        }
         for(let i = 0; i < isequal; i++){
             respuestasOk[answer['id']].push(0);
         }
@@ -184,11 +192,7 @@ function checkCompleteAns(npregActual){
 
 function juegoPreguntas(){
     if(qtime == ttime){
-        //emitir pregunta a frontend
-        var question = {
-            nq: numPreg,
-            ...bdquestions[numPreg]
-        }
+        var question = emitQuestion();
         io.sockets.emit('question', question)
         checkCompleteAns(numPreg);
     }
@@ -203,6 +207,15 @@ function juegoPreguntas(){
         return;
     }
     
+}
+
+function emitQuestion(){
+    //emitir pregunta a frontend
+    var question = {
+        nq: numPreg,
+        ...bdquestions[numPreg]
+    }
+    return question;
 }
 
 function gameOver(){

@@ -24,7 +24,8 @@ class App extends Component {
             gameBegins: false,
             gameOver: false,
             answers: {},
-            results: {}
+            results: {},
+            questions: []
         }
         this.handleUserOk = this.handleUserOk.bind(this);
         this.handleUserOver = this.handleUserOver.bind(this);
@@ -33,6 +34,7 @@ class App extends Component {
         this.handleBeginGame = this.handleBeginGame.bind(this);
         this.handleAnswer = this.handleAnswer.bind(this);
         this.handleReboot = this.handleReboot.bind(this);
+        this.handleSaveQuestion = this.handleSaveQuestion.bind(this);
     }
 
     componentDidMount() {
@@ -70,6 +72,11 @@ class App extends Component {
                     if (JSON.parse(sessionStorage.getItem('userOk'))){
                         this.socket.emit('newUser', {user: this.state.username, pass: this.state.password});
                     }
+                    if (JSON.parse(sessionStorage.getItem("question"))){
+                        this.setState({
+                            questions: JSON.parse(sessionStorage.getItem("question"))
+                        })
+                    }
                 })
             }
         }else{
@@ -90,6 +97,7 @@ class App extends Component {
                 })
         })
         this.socket.on('reboot', () => {
+            sessionStorage.setItem('question', "[]");
             if(this.state.username !== '' && this.state.password !== '' && this.state.userOk){
                 this.socket.emit('newUser', {user: this.state.username, pass: this.state.password});
             }else{
@@ -101,7 +109,8 @@ class App extends Component {
                 gameBegins: false,
                 gameOver: false,
                 answers: {},
-                results: {}
+                results: {},
+                questions: []
             })
         })
         //resultados
@@ -172,6 +181,17 @@ class App extends Component {
     handleReboot(){
         this.socket.emit('reboot', {user: this.state.username, pass: this.state.password});
     }
+    handleSaveQuestion(question){
+        console.log("nq: ", question.nq)
+        console.log("len: ", this.state.questions.length);
+        if(question.nq == this.state.questions.length){
+                this.setState({
+                    questions: [...this.state.questions, question]
+                }, ()=>{
+                    sessionStorage.setItem('question', JSON.stringify(this.state.questions));
+                })
+        }
+    }
 
     render() {
         //boton reiniciar todo
@@ -215,6 +235,7 @@ class App extends Component {
                                 hans={this.handleAnswer} 
                                 userOk={this.state.userOk}
                                 gameBegins={this.state.gameBegins}
+                                question={this.handleSaveQuestion}
                             />
                         </div>
                         <Estadisticas 
@@ -249,12 +270,14 @@ class App extends Component {
                             res={this.state.results}
                             gameOver={this.state.gameOver}
                             admin={this.state.admin}
+                            question={this.state.questions}
                         />
                         <ResultadosTotales 
                             ans={this.state.answers} 
                             res={this.state.results}
                             gameOver={this.state.gameOver}
                             admin={this.state.admin}
+                            question={this.state.questions}
                         />
                     </div>
                     <Estadisticas 
