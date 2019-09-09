@@ -147,8 +147,11 @@ function checkUser(user, socket) {
             if(users[user['user']] == user['pass']) {
                 if(user['user'].toLowerCase() == userAdmin && user['pass'] == passAdmin){
                     socket.emit('ImAdmin', '');
-                }
-                io.sockets.emit('resultados', {ans: respuestas, res: respuestasOk});
+                    
+                }//cambiar adminCorrectAns para que solo admin vea respuestas hasta que las libere
+                socket.emit('adminCorrectAns', bdanswers);
+                socket.emit('resultados', {ans: respuestas, res: respuestasOk});
+                socket.emit('allQuestion', bdquestions);
                 console.log(respuestas, respuestasOk)
                 //por ahora le envio todo
                 //socket.emit('resultadosPersonales', {ans: respuestas[user['user']], res: respuestasOk[user['user']]});

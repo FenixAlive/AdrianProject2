@@ -25,7 +25,8 @@ class App extends Component {
             gameOver: false,
             answers: {},
             results: {},
-            questions: []
+            questions: [],
+            correctAns: []
         }
         this.handleUserOk = this.handleUserOk.bind(this);
         this.handleUserOver = this.handleUserOver.bind(this);
@@ -77,6 +78,11 @@ class App extends Component {
                             questions: JSON.parse(sessionStorage.getItem("question"))
                         })
                     }
+                    if(JSON.parse(sessionStorage.getItem('correctAns'))){
+                        this.setState({
+                            correctAns: JSON.parse(sessionStorage.getItem("question"))
+                        })
+                    }
                 })
             }
         }else{
@@ -98,6 +104,7 @@ class App extends Component {
         })
         this.socket.on('reboot', () => {
             sessionStorage.setItem('question', "[]");
+            sessionStorage.setItem('correctAns', "[]");
             if(this.state.username !== '' && this.state.password !== '' && this.state.userOk){
                 this.socket.emit('newUser', {user: this.state.username, pass: this.state.password});
             }else{
@@ -118,6 +125,24 @@ class App extends Component {
             this.setState({
                 answers: datos.ans,
                 results: datos.res
+            })
+        })
+        this.socket.on('allQuestion', data => {
+            data = data.map((el, idx) => {
+                data[idx]['nq'] = idx;
+                return data[idx];
+            });
+           if(data.length > 0){
+               this.setState({
+                   questions: data
+               })
+           }
+        })
+        this.socket.on("adminCorrectAns", data => {
+            this.setState({
+                correctAns: data
+            }, () => {
+                sessionStorage.setItem('correctAns', JSON.stringify(data));
             })
         })
     } //termina didMount
@@ -182,8 +207,6 @@ class App extends Component {
         this.socket.emit('reboot', {user: this.state.username, pass: this.state.password});
     }
     handleSaveQuestion(question){
-        console.log("nq: ", question.nq)
-        console.log("len: ", this.state.questions.length);
         if(question.nq == this.state.questions.length){
                 this.setState({
                     questions: [...this.state.questions, question]
@@ -246,6 +269,7 @@ class App extends Component {
                     </div>
                 )
         }else {
+            console.log(this.state.answers);
             return (
                 <div className="container-fluid contenido">
                     <div className="navbar navbar-expand-lg navbar-light bg-light d-flex justify-content-around">
@@ -270,14 +294,17 @@ class App extends Component {
                             res={this.state.results}
                             gameOver={this.state.gameOver}
                             admin={this.state.admin}
-                            question={this.state.questions}
+                            questions={this.state.questions}
+                            correctAns ={this.state.correctAns}
+                            user = {this.state.username}
                         />
                         <ResultadosTotales 
                             ans={this.state.answers} 
                             res={this.state.results}
                             gameOver={this.state.gameOver}
                             admin={this.state.admin}
-                            question={this.state.questions}
+                            questions={this.state.questions}
+                            correctAns ={this.state.correctAns}
                         />
                     </div>
                     <Estadisticas 

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import ResUser from "./ResUser";
+import DetalleRespuestas from "./DetalleRespuestas"
 
 export default class ResultadosTotales extends Component {
   constructor() {
@@ -7,27 +8,92 @@ export default class ResultadosTotales extends Component {
     super();
     this.state = {
       answers: {},
-      results: {}
+      results: {},
+      detalle: ''
     };
+    this.handleDetalle = this.handleDetalle.bind(this);
+    this.handleLimpiarDetalle = this.handleLimpiarDetalle.bind(this);
   }
   componentDidMount() {
     this._isMounted = true;
     if(this._isMounted) {
         this.setState({
             answers: this.props.ans,
-            results: this.props.res
+            results: this.props.res,
+            detalle: false
         })
     }
   }
   componentWillUnmount() {
     this._isMounted = false;
   }
+  handleDetalle(user){
+    this.setState({
+        detalle: user
+    })
+  }
+  handleLimpiarDetalle(){
+    this.setState({
+        detalle: ''
+    })
+  }
   render() {
     if (this.props.admin && this.props.gameOver) {
-      console.log(this.props.question)
-      return (
-        <div className="card bg-dark text-white my-5">
-          <table className="table table-bordered table-sm table-dark">
+      if(this.state.detalle == ''){
+        return (
+          <div className="card bg-dark text-white my-5">
+            <div className="card-header">Respuestas Generales</div>
+            <div className="card-body">
+            <table className="table table-sm table-dark table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Usuario</th>
+                  <th scope="col">Contraseña</th>
+                  <th scope="col">Calificación</th>
+                  <th scope="col">Detalle</th>
+                </tr>
+              </thead>
+              <tbody>
+                  {this.state.results.hasOwnProperty("admin") ?
+                      Object.keys(this.state.results).map((el, keyUs)=>{
+                          return <ResUser key={keyUs} 
+                                    user={el} 
+                                    res={this.state.results[el]} 
+                                    ans={this.state.answers[el]} 
+                                    detalle={this.handleDetalle}
+                                  />
+                      })
+                  : <tr />
+                  }
+              </tbody>
+            </table>
+            </div>
+          </div>
+        );
+      }else{
+        return (
+          <div className="card bg-dark text-white my-5">
+            <div className="card-header">Detalle de Respuestas del Usuario: <b className="mx-2">{this.state.detalle}</b></div>
+            <div className="card-body">
+              <button className="btn btn-large btn-outline-info" onClick={this.handleLimpiarDetalle}>Regresar a Listado de Usuarios</button>
+              <DetalleRespuestas 
+                user={this.state.detalle} 
+                res={this.state.results[this.state.detalle]} 
+                ans={this.state.answers[this.state.detalle]} 
+                questions={this.props.questions}
+                correctAns ={this.props.correctAns}
+              />
+            </div>
+          </div>
+        );
+      }
+    } else {
+      return <React.Fragment />;
+    }
+  }
+}
+/*
+<table className="table table-bordered table-sm table-dark">
             <thead>
               <tr>
                 <th scope="col"> Usuario </th>
@@ -49,10 +115,4 @@ export default class ResultadosTotales extends Component {
                 }
             </tbody>
           </table>
-        </div>
-      );
-    } else {
-      return <React.Fragment />;
-    }
-  }
-}
+*/

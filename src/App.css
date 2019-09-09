@@ -74,3 +74,9 @@ input{
 .card {
     overflow: auto !important;
 }
+span{
+    display: inline-block !important;
+}
+b{
+    font-size: 1.3em;
+}
