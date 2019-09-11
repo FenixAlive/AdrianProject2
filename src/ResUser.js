@@ -30,7 +30,7 @@ export default class ResUser extends Component {
         return (
             <tr>
                 <th key={this.props.user} scope="row">{this.props.user}</th>
-                <td>1234</td>
+                <td>{this.props.password}</td>
                 <td>{this.state.total} de {this.state.numPreg} = {this.state.promedio}%</td>
                 <td><button className="btn btn-outline-info" onClick={this.handleDetalle}>Detalle</button>  </td>
             </tr>

@@ -24,9 +24,8 @@ export default class ResultadosPersonales extends Component {
     componentWillUnmount() {
         this._isMounted = false;
     }   
-    //hacer tabla con los resultados del usuario
+    //hacer resumen de los resultados
     render() {
-        console.log(this.state.answers)
         if(!this.props.admin && this.props.gameOver && this.props.ans) {
             return (
                 <div className="card bg-dark text-white my-5">

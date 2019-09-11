@@ -10,8 +10,8 @@ import './App.css'
 import 'bootstrap/dist/css/bootstrap.css';
 
 import io from 'socket.io-client';
-//TODO: arreglar vista preguntas y resultados, ver si no mando toda la información de resultados a todos los usuarios, ver graficas en html
 //TODO Futuro: ver como agregar base de datos y deploy
+//Arreglar como se ven las preguntas cuando aun no se liberan las respuestas y tambien como se envian las respuestas al iniciar sesion
 class App extends Component {
     constructor() {
         super();
@@ -26,7 +26,9 @@ class App extends Component {
             answers: {},
             results: {},
             questions: [],
-            correctAns: []
+            correctAns: [],
+            passwords: {},
+            liberarDetalle: false
         }
         this.handleUserOk = this.handleUserOk.bind(this);
         this.handleUserOver = this.handleUserOver.bind(this);
@@ -36,6 +38,7 @@ class App extends Component {
         this.handleAnswer = this.handleAnswer.bind(this);
         this.handleReboot = this.handleReboot.bind(this);
         this.handleSaveQuestion = this.handleSaveQuestion.bind(this);
+        this.handleLiberarDetalle = this.handleLiberarDetalle.bind(this);
     }
 
     componentDidMount() {
@@ -60,7 +63,9 @@ class App extends Component {
             }, () => {
                 sessionStorage.setItem('userOk', this.state.userOk);
                 //TODO: cambiar alert por algo mas amigable
-                alert("Usuario no valido");
+                if(this.state.username != ''){
+                    alert("Usuario no valido");
+                }
             })
         })
         if(this.state.username == '' || this.state.password == ''){
@@ -101,6 +106,8 @@ class App extends Component {
                     gameBegins: false,
                     gameOver: true
                 })
+                //pedir datos de resultados
+                this.socket.emit('checkUser', {user: this.state.username, pass: this.state.password});
         })
         this.socket.on('reboot', () => {
             sessionStorage.setItem('question', "[]");
@@ -117,7 +124,9 @@ class App extends Component {
                 gameOver: false,
                 answers: {},
                 results: {},
-                questions: []
+                questions: [],
+                passwords: {},
+                liberarDetalle: false
             })
         })
         //resultados
@@ -144,6 +153,16 @@ class App extends Component {
             }, () => {
                 sessionStorage.setItem('correctAns', JSON.stringify(data));
             })
+        })
+        this.socket.on('passwords', users =>{
+            this.setState({
+                passwords: users
+            })
+        })
+        this.socket.on('detalleLiberado', isTrue =>{
+                this.setState({
+                    liberarDetalle: isTrue
+                })
         })
     } //termina didMount
 
@@ -215,6 +234,9 @@ class App extends Component {
                 })
         }
     }
+    handleLiberarDetalle(){
+        this.socket.emit('liberarDetalle', {user: this.state.username, pass: this.state.password})
+    }
 
     render() {
         //boton reiniciar todo
@@ -269,7 +291,6 @@ class App extends Component {
                     </div>
                 )
         }else {
-            console.log(this.state.answers);
             return (
                 <div className="container-fluid contenido">
                     <div className="navbar navbar-expand-lg navbar-light bg-light d-flex justify-content-around">
@@ -305,6 +326,9 @@ class App extends Component {
                             admin={this.state.admin}
                             questions={this.state.questions}
                             correctAns ={this.state.correctAns}
+                            handleLiberarDetalle = {this.handleLiberarDetalle}
+                            liberarDetalle = {this.state.liberarDetalle}
+                            passwords = {this.state.passwords}
                         />
                     </div>
                     <Estadisticas 

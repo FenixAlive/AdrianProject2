@@ -139,9 +139,8 @@ export default class Options extends Component {
         <div className="my-3 card text-dark">
           <div className="card-header"> Tu Respuesta </div>
           <div className="card-body">
-            
-            <span> {this.state.answer.opt}) </span>
-            <span>{this.state.answer.ans}</span>
+            <span> {this.state.answer.opt}</span>
+            <span> {") "+this.state.answer.ans}</span>
           </div>
         </div>
       );
@@ -174,9 +173,7 @@ export default class Options extends Component {
             <Time time={this.state.time} nq={this.state.nq} />
             <div className="card bg-dark my-3">
               <div id="question" className="card-header">
-                
                 <p className="mx-3 my-3">
-                  
                   <b> {this.state.question} </b>
                 </p>
               </div>
@@ -190,7 +187,7 @@ export default class Options extends Component {
         <div id="opContainer" className="">
           <Time time={this.state.time} nq={this.state.nq} />
           <div className="sorry">
-            Lo siento, llegaste tarde, ya no puedes ingresar.
+            <b>Lo siento, llegaste tarde, ya no puedes ingresar.</b>
           </div>
         </div>
       );

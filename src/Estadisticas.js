@@ -58,7 +58,7 @@ export default class Estadisticas extends Component {
                     <h5 className="card-header">Estadisticas</h5>
                     <div className="card-body">
                         <div className="card my-3">
-                            <h6 className="card-header">Usuarios</h6>
+                            <h6 className="card-header">Usuarios Registrados</h6>
                             <div className="card-body my-2">
                                 {this.state.users.map( (el, idx) => {
                                     return <span key={idx} className={this.state.colors[Math.floor(Math.random()*7)]+" userEsta"}>

@@ -2,13 +2,55 @@ import React, { Component } from 'react'
 import OpcionesResultados from './OpcionesResultados'
 
 export default class DetalleRespuestas extends Component {
+    constructor(props){
+        var _isMounted = false;
+        super(props);
+        this.state = {
+            answers: {},
+            results: {},
+            numAns: 0,
+            total: 0
+        }
+    }
+    componentDidMount() {
+        this._isMounted = true;
+        if(this._isMounted) {
+            this.setState({
+                answers: this.props.ans,
+                results: this.props.res
+            })
+        }
+    }
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if(nextProps.res !== prevState.results) {
+            if(nextProps.res){
+                var sumaTotal = 0;
+                let lenRes = nextProps.res.length;
+                for(let i = 0; i < lenRes; i++){
+                    sumaTotal += nextProps.res[i];
+                }
+                return {
+                    answers: nextProps.ans,
+                    results: nextProps.res,
+                    numAns: lenRes,
+                    total: sumaTotal
+                }
+            }
+        }
+            return null;
+    }
     render() {
         return (
             <React.Fragment>
                 {this.props.questions.map((val, idx) => {
                     var usAns;
-                    if(this.props.ans.hasOwnProperty(idx)){
-                        usAns = this.props.ans[idx];
+                    if(this.state.answers){
+                        if(this.state.answers.hasOwnProperty(idx)){
+                            usAns = this.state.answers[idx];
+                        }
                     }
                     return <div key={idx} className="my-3 card bg-dark">
                     <div className="card-header"> <b>{idx+1}) {val['question']}</b></div>

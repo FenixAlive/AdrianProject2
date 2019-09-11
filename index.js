@@ -38,6 +38,7 @@ var juegoId = 0;
 var ttime = 5; //cambiar a 60
 var qtime = ttime;
 var numPreg = 0;
+var liberarDetalle = false;
 const totpreg = bdquestions.length;
 var users = {};
 var respuestas = {};
@@ -135,6 +136,16 @@ io.on('connection', socket => {
         var question = emitQuestion();
         io.sockets.emit('question', question)
     })
+    socket.on('liberarDetalle', user => {
+        user['user'] = user['user'].toLowerCase();
+        if(user['user'].toLowerCase() == userAdmin && user['pass'] == passAdmin){
+            liberarDetalle = true;
+            io.sockets.emit('resultados', {ans: respuestas, res: respuestasOk});
+            io.sockets.emit('allQuestion', bdquestions);
+            io.sockets.emit('adminCorrectAns', bdanswers);
+            socket.emit('detalleLiberado', liberarDetalle)
+        }
+    })
 
 })//finaliza socket
 
@@ -147,14 +158,23 @@ function checkUser(user, socket) {
             if(users[user['user']] == user['pass']) {
                 if(user['user'].toLowerCase() == userAdmin && user['pass'] == passAdmin){
                     socket.emit('ImAdmin', '');
-                    
+                    socket.emit('allQuestion', bdquestions);
+                    //socket.emit('resultados', {ans: respuestas, res: respuestasOk});
+                    socket.emit('adminCorrectAns', bdanswers);
+                    socket.emit('passwords', users);
+                    if(liberarDetalle){
+                        socket.emit('detalleLiberado', liberarDetalle);
+                    }
                 }//cambiar adminCorrectAns para que solo admin vea respuestas hasta que las libere
-                socket.emit('adminCorrectAns', bdanswers);
-                socket.emit('resultados', {ans: respuestas, res: respuestasOk});
+                else{
+                    //para poder implementar resultados personales debo cambiar las estadisticas
+                    //socket.emit('resultados', {ans: respuestas[user['user']], res: respuestasOk[user['user']]});
+                    if(liberarDetalle){
+                        socket.emit('adminCorrectAns', bdanswers);
+                    }
+                }
                 socket.emit('allQuestion', bdquestions);
-                console.log(respuestas, respuestasOk)
-                //por ahora le envio todo
-                //socket.emit('resultadosPersonales', {ans: respuestas[user['user']], res: respuestasOk[user['user']]});
+                socket.emit('resultados', {ans: respuestas, res: respuestasOk});
             }else{
                 socket.emit('userNotValid', '');
             }
