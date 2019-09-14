@@ -6,12 +6,13 @@ import Estadisticas from './Estadisticas'
 import Footer from './Footer'
 import ResultadosTotales from './ResultadosTotales'
 import ResultadosPersonales from './ResultadosPersonales'
+import Modal from './Modal'
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.css';
 
 import io from 'socket.io-client';
 //TODO Futuro: ver como agregar base de datos y deploy
-//Arreglar como se ven las preguntas cuando aun no se liberan las respuestas y tambien como se envian las respuestas al iniciar sesion
+//Agregar modal
 class App extends Component {
     constructor() {
         super();
@@ -28,7 +29,9 @@ class App extends Component {
             questions: [],
             correctAns: [],
             passwords: {},
-            liberarDetalle: false
+            liberarDetalle: false,
+            modal: false,
+            modalData: {}
         }
         this.handleUserOk = this.handleUserOk.bind(this);
         this.handleUserOver = this.handleUserOver.bind(this);
@@ -39,6 +42,7 @@ class App extends Component {
         this.handleReboot = this.handleReboot.bind(this);
         this.handleSaveQuestion = this.handleSaveQuestion.bind(this);
         this.handleLiberarDetalle = this.handleLiberarDetalle.bind(this);
+        this.handleModal = this.handleModal.bind(this);
     }
 
     componentDidMount() {
@@ -237,7 +241,9 @@ class App extends Component {
     handleLiberarDetalle(){
         this.socket.emit('liberarDetalle', {user: this.state.username, pass: this.state.password})
     }
-
+    handleModal(){
+        console.log("Modal")
+    }
     render() {
         //boton reiniciar todo
         if(this.state.admin) {
