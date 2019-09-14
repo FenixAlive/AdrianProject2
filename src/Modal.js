@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 
 export default class Modal extends Component {
+  constructor(props){
+    super(props);
+  }
   render() {
-          if(!modalOpen){
+          if(!this.props.modalOpen){
             return null;
           }else{
             return (
-              <ModalContainer>
                 <div className="container">
                   <div className="row">
                     <div id="modal" className="col-8 mx-auto col-md-6 col-lg-4 text-center text-capitalize p-3">
@@ -16,7 +18,6 @@ export default class Modal extends Component {
                     </div>
                   </div>
                 </div>
-              </ModalContainer>
             )
           }
     }

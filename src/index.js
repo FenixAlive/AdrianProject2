@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {render} from 'react-dom';
 import User from './User';
-import Options from './Options'
+import Questions from './Questions'
 import Estadisticas from './Estadisticas'
 import Footer from './Footer'
 import ResultadosTotales from './ResultadosTotales'
@@ -22,16 +22,15 @@ class App extends Component {
             username: '',
             password: '',
             userOk: false,
-            gameBegins: false,
-            gameOver: false,
-            answers: {},
-            results: {},
+            answers: {}, //va guardando las respuestas ver si puedo solo mandarlas al back e ir actualizando miResultado
             questions: [],
             correctAns: [],
-            passwords: {},
-            liberarDetalle: false,
             modal: false,
-            modalData: {}
+            modalData: {},
+            //nuevos
+            estadoJuego: {},
+            datosUsuarios: {},
+            miResultado: {},
         }
         this.handleUserOk = this.handleUserOk.bind(this);
         this.handleUserOver = this.handleUserOver.bind(this);
@@ -40,9 +39,9 @@ class App extends Component {
         this.handleBeginGame = this.handleBeginGame.bind(this);
         this.handleAnswer = this.handleAnswer.bind(this);
         this.handleReboot = this.handleReboot.bind(this);
-        this.handleSaveQuestion = this.handleSaveQuestion.bind(this);
         this.handleLiberarDetalle = this.handleLiberarDetalle.bind(this);
         this.handleModal = this.handleModal.bind(this);
+        this.handleTermine = this.handleTermine.bind(this);
     }
 
     componentDidMount() {
@@ -52,7 +51,10 @@ class App extends Component {
                 myId: id
             }, ()=>{
                 sessionStorage.setItem('myId', id)
-                this.socket.emit('isGameBegin', '');
+                if(this.state.username !== '' && this.state.password !== '' && this.state.userOk){
+                    //cuando se reinicia el servidor y no se actualiza el navegador
+                    this.socket.emit('newUser', {user: this.state.username, pass: this.state.password});
+                }
             })
         })
         //datos usuario
@@ -61,57 +63,16 @@ class App extends Component {
                 admin: true
             })
         })
-        this.socket.on('userNotValid', () => {
+        this.socket.on('userNotValid', error => {
             this.setState({
                 userOk: false
             }, () => {
                 sessionStorage.setItem('userOk', this.state.userOk);
                 //TODO: cambiar alert por algo mas amigable
                 if(this.state.username != ''){
-                    alert("Usuario no valido");
+                    alert(error.error);
                 }
             })
-        })
-        if(this.state.username == '' || this.state.password == ''){
-            if(sessionStorage.getItem('username') && sessionStorage.getItem('password') && sessionStorage.getItem('userOk')){
-                this.setState({
-                    username: sessionStorage.getItem('username'),
-                    password: sessionStorage.getItem('password'),
-                    userOk: JSON.parse(sessionStorage.getItem('userOk'))
-                }, () => {
-                    if (JSON.parse(sessionStorage.getItem('userOk'))){
-                        this.socket.emit('newUser', {user: this.state.username, pass: this.state.password});
-                    }
-                    if (JSON.parse(sessionStorage.getItem("question"))){
-                        this.setState({
-                            questions: JSON.parse(sessionStorage.getItem("question"))
-                        })
-                    }
-                    if(JSON.parse(sessionStorage.getItem('correctAns'))){
-                        this.setState({
-                            correctAns: JSON.parse(sessionStorage.getItem("question"))
-                        })
-                    }
-                })
-            }
-        }else{
-            sessionStorage.setItem('username', this.state.username);
-            sessionStorage.setItem('userOk', this.state.userOk);
-            sessionStorage.setItem('password', this.state.password);
-        }
-        //juego
-        this.socket.on('beginGame', isIt => {
-            this.setState({
-                gameBegins: isIt
-            })
-        })
-        this.socket.on('gameOver', () => {
-                this.setState({
-                    gameBegins: false,
-                    gameOver: true
-                })
-                //pedir datos de resultados
-                this.socket.emit('checkUser', {user: this.state.username, pass: this.state.password});
         })
         this.socket.on('reboot', () => {
             sessionStorage.setItem('question', "[]");
@@ -124,33 +85,19 @@ class App extends Component {
                 })
             }
             this.setState({
-                gameBegins: false,
-                gameOver: false,
-                answers: {},
-                results: {},
+                answers: {}, 
                 questions: [],
-                passwords: {},
-                liberarDetalle: false
+                correctAns: [],
+                modal: false,
+                modalData: {},
+                //nuevos
+                estadoJuego: {},
+                datosUsuarios: {},
+                miResultado: {},
             })
         })
         //resultados
-        this.socket.on('resultados', datos => {
-            this.setState({
-                answers: datos.ans,
-                results: datos.res
-            })
-        })
-        this.socket.on('allQuestion', data => {
-            data = data.map((el, idx) => {
-                data[idx]['nq'] = idx;
-                return data[idx];
-            });
-           if(data.length > 0){
-               this.setState({
-                   questions: data
-               })
-           }
-        })
+
         this.socket.on("adminCorrectAns", data => {
             this.setState({
                 correctAns: data
@@ -158,17 +105,50 @@ class App extends Component {
                 sessionStorage.setItem('correctAns', JSON.stringify(data));
             })
         })
-        this.socket.on('passwords', users =>{
+        this.socket.on('estadoJuego', estadoJuego=>{
+            console.log(estadoJuego)
             this.setState({
-                passwords: users
+                estadoJuego
+            })
+        });
+        this.socket.on('misResultados', miResultado=>{
+            console.log(miResultado);
+            this.setState({
+                miResultado
+            })
+        });
+        this.socket.on('usuarios', datosUsuarios=>{
+            console.log(datosUsuarios);
+            this.setState({
+                datosUsuarios
             })
         })
-        this.socket.on('detalleLiberado', isTrue =>{
-                this.setState({
-                    liberarDetalle: isTrue
-                })
+        this.socket.on('allQuestion', data => {
+           if(data.length > 0){
+               this.setState({
+                   questions: data
+               })
+           }
         })
-    } //termina didMount
+        //sessionStorage y state
+        if(this.state.username == '' || this.state.password == ''){
+            if(sessionStorage.getItem('username') && sessionStorage.getItem('password') && sessionStorage.getItem('userOk')){
+                this.setState({
+                    username: sessionStorage.getItem('username'),
+                    password: sessionStorage.getItem('password'),
+                    userOk: JSON.parse(sessionStorage.getItem('userOk'))
+                }, () => {
+                    if (JSON.parse(sessionStorage.getItem('userOk'))){
+                        this.socket.emit('newUser', {user: this.state.username, pass: this.state.password});
+                    }
+                })
+            }
+        }else{
+            sessionStorage.setItem('username', this.state.username);
+            sessionStorage.setItem('userOk', this.state.userOk);
+            sessionStorage.setItem('password', this.state.password);
+        }
+    } //termina DidMount
 
     handleUser(e) {
         this.setState({
@@ -176,7 +156,7 @@ class App extends Component {
         })
     }
     handleUserOk() {
-        if(this.state.username != '' && this.state.password != '' && !this.state.gameOver){
+        if(this.state.username != '' && this.state.password != '' && !this.state.estadoJuego.gameEnd){
             if(!this.state.userOk){
                 this.socket.emit('newUser', {user: this.state.username, pass: this.state.password});
                 sessionStorage.setItem('username', this.state.username);
@@ -193,7 +173,7 @@ class App extends Component {
         }
     }
     handleUserOver(){
-        if(this.state.gameOver && this.state.username != '' && this.state.password != ''){
+        if(this.state.estadoJuego.gameEnd && this.state.username != '' && this.state.password != ''){
             if(!this.state.userOk){
                 this.setState({
                     admin: false
@@ -216,7 +196,7 @@ class App extends Component {
         })
     }
     handleBeginGame(){
-        this.socket.emit('beginGame', {user: this.state.username, pass: this.state.password});
+        this.socket.emit('iniciarCuestionario', {user: this.state.username, pass: this.state.password});
     }
     handleAnswer(answer){
         var ans = {
@@ -229,20 +209,16 @@ class App extends Component {
     handleReboot(){
         this.socket.emit('reboot', {user: this.state.username, pass: this.state.password});
     }
-    handleSaveQuestion(question){
-        if(question.nq == this.state.questions.length){
-                this.setState({
-                    questions: [...this.state.questions, question]
-                }, ()=>{
-                    sessionStorage.setItem('question', JSON.stringify(this.state.questions));
-                })
-        }
-    }
     handleLiberarDetalle(){
         this.socket.emit('liberarDetalle', {user: this.state.username, pass: this.state.password})
     }
     handleModal(){
         console.log("Modal")
+    }
+    handleTermine(){
+        //enviar socket emit de termine preguntas para que me diga mi calificación
+        //enviarle misResultados desde backend
+        console.log(this.state.answers)
     }
     render() {
         //boton reiniciar todo
@@ -256,7 +232,7 @@ class App extends Component {
             var usuarioDiv = <div className="usuarioOk">
                         <h5 className="usuarioNombre">{this.state.username}</h5>
                         <div className="botonUserDiv mx-3 my-2"><button 
-                            onClick={(this.state.gameOver) ? this.handleUserOver : this.handleUserOk} 
+                            onClick={(this.state.estadoJuego.gameEnd) ? this.handleUserOver : this.handleUserOk} 
                             className="btn btn-outline-secondary"
                         >
                                 Cambiar
@@ -266,86 +242,74 @@ class App extends Component {
             var usuarioDiv = '';
         }
         //boton iniciar partida
-        if(this.state.admin && !this.state.gameOver) {
+        if(this.state.admin && !this.state.estadoJuego.gameEnd && this.state.userOk) {
             var btnIniciar = <button onClick={this.handleBeginGame} className="container btn btn-primary my-5 py-3 btn-block">Iniciar Cuestionario</button>
-        }else if (!this.state.admin && !this.state.gameOver){
+        }else if (!this.state.admin && !this.state.estadoJuego.gameEnd && this.state.userOk){
             var btnIniciar = <div className="bg-dark  my-5 py-3 card container text-white">Espere a que el Administrador Inicie el Cuestionario. </div>
         }else {
             var btnIniciar = "";
         }
-        if(this.state.gameBegins) {
-                return (
-                    <div className="container-fluid contenido">
-                        <div className="navbar navbar-expand-lg navbar-light bg-light d-flex justify-content-around">
-                            <div className="titulo navbar-text mx-3 my-2">Examen de Adrian</div>
-                            {usuarioDiv}
-                            <div className="divBtnReiniciar mx-3 my-2">{btnReboot}</div>
-                        </div>
-                        <div className="main">
-                            <Options
-                                hans={this.handleAnswer} 
-                                userOk={this.state.userOk}
-                                gameBegins={this.state.gameBegins}
-                                question={this.handleSaveQuestion}
-                            />
-                        </div>
-                        <Estadisticas 
-                                ans={this.state.answers} 
-                                res={this.state.results} 
-                        />
-                        <Footer />
-                    </div>
-                )
+        //Main de acuerdo a si ya terminaste el examen o no
+        if(this.state.estadoJuego.gameBegin && !this.state.miResultado.termino) {
+            var main = <div className="main">
+                <Questions
+                    hans={this.handleAnswer} 
+                    estadoJuego={this.state.estadoJuego}
+                    questions={this.state.questions}
+                    termine={this.handleTermine}
+                />
+            </div>
         }else {
-            return (
-                <div className="container-fluid contenido">
-                    <div className="navbar navbar-expand-lg navbar-light bg-light d-flex justify-content-around">
-                        <div className="titulo navbar-text mx-3 my-2">Examen de Adrian</div>
-                        {usuarioDiv}
-                        <div className="divBtnReiniciar mx-3 my-2">{btnReboot}</div>
-                    </div>
-                    <div className="main">
-                        <User
-                            userOk={this.state.userOk} 
-                            gameOver={this.state.gameOver}
-                            username={this.state.username} 
-                            password={this.state.password}
-                            handleUser={this.handleUser}
-                            handleUserOk={this.handleUserOk}
-                            handleUserOver={this.handleUserOver}
-                            handlePass = {this.handlePass}
-                        />
-                        {btnIniciar}
-                        <ResultadosPersonales 
-                            ans={this.state.answers} 
-                            res={this.state.results}
-                            gameOver={this.state.gameOver}
-                            admin={this.state.admin}
-                            questions={this.state.questions}
-                            correctAns ={this.state.correctAns}
-                            user = {this.state.username}
-                            detalle = {this.state.liberarDetalle}
-                        />
-                        <ResultadosTotales 
-                            ans={this.state.answers} 
-                            res={this.state.results}
-                            gameOver={this.state.gameOver}
-                            admin={this.state.admin}
-                            questions={this.state.questions}
-                            correctAns ={this.state.correctAns}
-                            handleLiberarDetalle = {this.handleLiberarDetalle}
-                            liberarDetalle = {this.state.liberarDetalle}
-                            passwords = {this.state.passwords}
-                        />
-                    </div>
-                    <Estadisticas 
-                                ans={this.state.answers} 
-                                res={this.state.results} 
-                    />
-                    <Footer />
-                </div>
-            )
+            var main = <div className="main">
+            <User
+                userOk={this.state.userOk} 
+                gameOver={this.state.estadoJuego.gameEnd}
+                username={this.state.username} 
+                password={this.state.password}
+                handleUser={this.handleUser}
+                handleUserOk={this.handleUserOk}
+                handleUserOver={this.handleUserOver}
+                handlePass = {this.handlePass}
+            />
+            {btnIniciar}
+            <ResultadosPersonales 
+                miResultado = {this.state.miResultado}
+                gameOver={this.state.estadoJuego.gameEnd}
+                admin={this.state.admin}
+                questions={this.state.questions}
+                correctAns ={this.state.correctAns}
+                user = {this.state.username}
+                estadoJuego={this.state.estadoJuego}
+            />
+            <ResultadosTotales 
+                datosUsuarios = {this.state.datosUsuarios}
+                gameOver={this.state.estadoJuego.gameEnd}
+                admin={this.state.admin}
+                questions={this.state.questions}
+                correctAns ={this.state.correctAns}
+                handleLiberarDetalle = {this.handleLiberarDetalle}
+                estadoJuego={this.state.estadoJuego}
+            />
+            </div>
         }
+        return (
+            <div className="container-fluid contenido">
+                <div className="navbar navbar-expand-lg navbar-light bg-light d-flex justify-content-around">
+                    <div className="titulo navbar-text mx-3 my-2">Cuestionario de Adrian</div>
+                    {usuarioDiv}
+                    <div className="divBtnReiniciar mx-3 my-2">{btnReboot}</div>
+                </div>
+                {main}
+                <Modal 
+                        modalOpen={this.state.modal}
+                        modalData={this.state.modalData}
+                    />
+                <Estadisticas 
+                            estadoJuego={this.state.estadoJuego}
+                />
+                <Footer />
+            </div>
+        )
     }
 }
 

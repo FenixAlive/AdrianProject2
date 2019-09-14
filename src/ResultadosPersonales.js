@@ -52,9 +52,9 @@ export default class ResultadosPersonales extends Component {
         }
             return null;
     }
+    
     //hacer resumen de los resultados
     render() {
-        console.log(this.state.numAns, this.state.total)
         if(!this.props.admin && this.props.gameOver && this.props.ans) {
             if(this.state.detalle){
                 return (

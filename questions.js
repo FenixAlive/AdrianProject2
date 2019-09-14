@@ -1,5 +1,6 @@
 module.exports = [
     {
+        nq: 1,
         question: "¿1-Qdjff qegqeqo qerqero qerg oevf ergo qerbqerb erobqeofbo  eobefbeb effbl qeb ebqerb ebebetb tb etbebqebqeb qebebefbqebqeb qefbqfbqb?",
         options: [
             {opt: 'a', ans: "a1"},
@@ -9,6 +10,7 @@ module.exports = [
         ]
     },
     {
+        nq: 2,
         question: "¿2 lorem ipsum?",
         options: [
             {opt: 'a', ans: "a2"},
@@ -18,6 +20,7 @@ module.exports = [
         ]
     },
     {
+        nq: 3,
         question: "¿3 quien eres?",
         options: [
             {opt: 'a', ans: "a3"},
@@ -27,6 +30,7 @@ module.exports = [
         ]
     },
     {
+        nq: 4,
         question: "¿4-Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim dignissimos veritatis voluptatibus placeat saepe, harum necessitatibus esse veniam quisquam iure corporis voluptas minus ipsam odit perspiciatis eius ut, quia voluptatem!?",
         options: [
             {opt: 'a', ans: "a4"},
@@ -36,6 +40,7 @@ module.exports = [
         ]
     },
     {
+        nq: 5,
         question: "¿5?",
         options: [
             {opt: 'a', ans: "a5"},
@@ -45,6 +50,7 @@ module.exports = [
         ]
     },
     {
+        nq: 6,
         question: "¿6-jejjejejejejjejeje?",
         options: [
             {opt: 'a', ans: "a6"},
@@ -54,6 +60,7 @@ module.exports = [
         ]
     },
     {
+        nq: 7,
         question: "¿7-Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim dignissimos veritatis voluptatibus placeat saepe, harum necessitatibus esse veniam quisquam iure corporis voluptas minus ipsam odit perspiciatis eius ut, quia voluptatem!?",
         options: [
             {opt: 'a', ans: "a7"},
@@ -63,6 +70,7 @@ module.exports = [
         ]
     },
     {
+        nq: 8,
         question: "¿8?",
         options: [
             {opt: 'a', ans: "a8"},
@@ -72,6 +80,7 @@ module.exports = [
         ]
     },
     {
+        nq: 9,
         question: "¿9?",
         options: [
             {opt: 'a', ans: "a9"},
@@ -81,6 +90,7 @@ module.exports = [
         ]
     },
     {
+        nq: 10,
         question: "¿10?",
         options: [
             {opt: 'a', ans: "a10"},

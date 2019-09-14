@@ -1,8 +1,5 @@
 import React, { Component } from "react";
-import io from "socket.io-client";
-import Time from "./Time";
 
-//TODO hay un error
 export default class Options extends Component {
   constructor() {
     var _isMounted = false;
@@ -22,98 +19,9 @@ export default class Options extends Component {
 
   componentDidMount() {
     this._isMounted = true;
-    this.socket = io("/");
-    this.socket.emit("isGameOver", "");
-    if (
-      this.props.gameBegins &&
-      !this.state.gameOver &&
-      this.state.question == "" &&
-      sessionStorage.getItem("stateQuestion")
-    ) {
-      var sq = JSON.parse(sessionStorage.getItem("stateQuestion"));
-      this.setState({
-        time: "",
-        nq: sq.nq,
-        question: sq.question,
-        options: sq.options,
-        answer: sq.answer,
-        answered: sq.answered
-      });
-      this.socket.emit("whichQuestion", "");
-    }
-    this.socket.on("question", q => {
-      if (this._isMounted) {
-        var { nq, question, options } = q;
-        if(nq !== this.state.nq){
-          this.setState(
-            {
-              nq,
-              question,
-              options,
-              answer: { opt: "", ans: "" },
-              answered: false
-            },
-            () => {
-              sessionStorage.setItem("stateQuestion", JSON.stringify(this.state));
-              //guardar pregunta
-              this.props.question(q);
-            }
-          );
-        }
-      }
-    });
-    this.socket.on("time", time => {
-      if (this._isMounted) {
-        this.setState({
-          time: time
-        });
-      }
-    });
-    this.socket.on("gameOver", () => {
-      if (this._isMounted) {
-        this.cont = -1;
-        this.setState(
-          {
-            time: "",
-            nq: -1,
-            question: "",
-            options: [],
-            answer: { opt: "", ans: "" },
-            answered: false,
-            gameOver: true
-          },
-          () => {
-            sessionStorage.setItem("stateQuestion", JSON.stringify(this.state));
-          }
-        );
-      }
-    });
+    
   }
   componentWillUnmount() {
-    if (this._isMounted) {
-      this.setState(
-        {
-          time: "",
-          nq: -1,
-          question: "",
-          options: [],
-          answer: { opt: "", ans: "" },
-          answered: false,
-          gameOver: false
-        },
-        () => {
-          console.log(sessionStorage.getItem("stateQuestion"));
-        }
-      );
-      const statezero = {
-        nq: -1,
-        question: "",
-        options: [],
-        answer: { opt: "", ans: "" },
-        answered: false
-      };
-      sessionStorage.setItem("stateQuestion", JSON.stringify(statezero));
-    }
     this._isMounted = false;
   }
   handleOpc(option) {
@@ -133,8 +41,10 @@ export default class Options extends Component {
     this.props.hans(ans);
   }
   render() {
+    console.log("option question",this.props.question)
     //pregunta contestada
     if (this.state.answered) {
+      //boton siguiente pregunta
       var options = (
         <div className="my-3 card text-dark">
           <div className="card-header"> Tu Respuesta </div>
@@ -147,7 +57,6 @@ export default class Options extends Component {
     } else {
       var options = (
         <div id="options" className="">
-          
           {this.state.options.map((el, idx) => {
             return (
               <button
@@ -165,12 +74,8 @@ export default class Options extends Component {
         </div>
       );
     }
-    //render return
-    if (this.props.userOk) {
-      return (
-        <div id="opContainer" className="">
+    return (  
           <div className="container">
-            <Time time={this.state.time} nq={this.state.nq} />
             <div className="card bg-dark my-3">
               <div id="question" className="card-header">
                 <p className="mx-3 my-3">
@@ -180,17 +85,6 @@ export default class Options extends Component {
               <div className="card-text mx-3"> {options} </div>
             </div>
           </div>
-        </div>
       );
-    } else {
-      return (
-        <div id="opContainer" className="">
-          <Time time={this.state.time} nq={this.state.nq} />
-          <div className="sorry">
-            <b>Lo siento, llegaste tarde, ya no puedes ingresar.</b>
-          </div>
-        </div>
-      );
-    }
   }
 }

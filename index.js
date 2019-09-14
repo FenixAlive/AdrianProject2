@@ -4,7 +4,6 @@ const socketIo = require('socket.io');
 const path = require('path');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
-const sockete = require(path.join(__dirname, 'sockete'))
 const bdquestions = require(path.join(__dirname, 'questions'))
 const bdanswers = require(path.join(__dirname, 'answers'))
 const app = express();
@@ -33,14 +32,14 @@ server.listen(app.get('port'), ()=>{
 //variables de estado
 var estadoJuego = {
     gameBegin: false,
-    totalTime: 3, //segundos
-    gameInitial: 0,
-    gameRest: 0,
+    totalTime: 5*60*1000, //milisegundos
+    pasoTiempo: 1000, //aumentar el tiempo al final
+    gameRest: 0, 
     gameEnd: false,
     juegoId: 0,
     liberarDetalle: false,
     totpreg: bdquestions.length,
-    numUsers: 1,
+    numUsers: 0,
     estadisticas: [],
     userAdmin: 'admin',
     passAdmin: '1234',
@@ -50,61 +49,84 @@ var estadoJuego = {
 io.on('connection', socket => {
     console.log('socket connected: ', socket.id);
     socket.on('newUser', user =>{
-        user['user'] = user['user'].toLowerCase();
-        if(user.hasOwnProperty('user') && user.hasOwnProperty('pass') && user['user'] !== '' && user['pass'] !== ''){
-            var ok = estadoJuego.usuarios.hasOwnProperty(user['user']);
-            if(!ok){
-                //administrador
-                if(user['user'] === estadoJuego.userAdmin && estadoJuego.passAdmin === user['pass']){
-                    agregarUsuario(user, socket.id);
-                    socket.emit('ImAdmin', '');
-                }else if (user['user'] == userAdmin){
-                    console.log("contra incorrecta admin")
-                    socket.emit('userNotValid', '');
-                }else {
-                    agregarUsuario(user, socket.id);
-                }
-            }else{
-                checkUser(user, socket);
-            }
-        }
+        newUser(user, socket);
     });
     socket.on('deleteUser', user => {
-        user['user'] = user['user'].toLowerCase();
-        var ok = estadoJuego.usuarios.hasOwnProperty(user['user']);
-        if (ok) {
-            if(estadoJuego.usuarios[user['user']]['pass'] == user['pass']) {
-                delete estadoJuego.usuarios[user['user']]
-            }
-        }
+        deleteUser(user);
     });
     socket.on('checkUser', user => {
         checkUser(user, socket);
     })
     socket.on('iniciarCuestionario', user =>{
+        iniciarCuestionario(user);
+    })
+    socket.on('liberarDetalle', user => {
         user['user'] = user['user'].toLowerCase();
-        var ok = estadoJuego.usuarios.hasOwnProperty(user['user']);
-        if (ok && user['user'] === estadoJuego.userAdmin && estadoJuego.passAdmin === user['pass']){
-            //inicializar contador, set tiempo de inicio e ir revisando cada 10 segundos hasta que se termine el tiempo
+        if(user['user'].toLowerCase() == estadoJuego.userAdmin && user['pass'] == estadoJuego.passAdmin){
+            estadoJuego.liberarDetalle = true;
+            io.sockets.emit('allQuestion', bdquestions);
+            io.sockets.emit('adminCorrectAns', bdanswers);
+            io.sockets.emit('estadoJuego', estadoActualJuego());
         }
     })
     //socket.on contestePregunta, ver si hay tiempo para registrar su respuesta, registrar y regresarle actualizado su estado
 })//finaliza socket
 
-function agregarUsuario(user, id){
+function estadoActualJuego(){
+    console.log(estadoJuego)
+    return {
+        gameBegin: estadoJuego.gameBegin,
+        gameRest: estadoJuego.gameRest,
+        gameEnd: estadoJuego.gameEnd,
+        liberarDetalle: estadoJuego.liberarDetalle,
+        totpreg: estadoJuego.totpreg,
+        numUsers: estadoJuego.numUsers,
+        estadisticas: estadoJuego.estadisticas,
+    }
+}
+
+function newUser(user, socket) {
+    user['user'] = user['user'].toLowerCase();
+        if(user.hasOwnProperty('user') && user.hasOwnProperty('pass') && user['user'] !== '' && user['pass'] !== ''){
+            var ok = estadoJuego.usuarios.hasOwnProperty(user['user']);
+            if(!ok){
+                //administrador
+                if(user['user'] == estadoJuego.userAdmin){
+                    if(estadoJuego.passAdmin === user['pass']){
+                        socket.emit('ImAdmin', estadoJuego.passAdmin);
+                        agregarUsuario(user, socket);
+                    }else{
+                        socket.emit('userNotValid', {error: "Usuario reservado al administrador, contraseña incorrecta"});
+                    }
+                }else if(!estadoJuego.gameEnd){
+                    agregarUsuario(user, socket);
+                }else{
+                    socket.emit('userNotValid', {error: "El tiempo para registrarse y realizar el examen se ha terminado"});
+                }
+            }else {
+                checkUser(user, socket);
+            }
+        }
+}
+
+function agregarUsuario(user, socket){
     estadoJuego.usuarios[user['user']] = {};
     estadoJuego.usuarios[user['user']]['pass'] = user['pass'];
-    estadoJuego.usuarios[user['user']]['id'] = id;
+    estadoJuego.usuarios[user['user']]['id'] = socket.id;
     estadoJuego.usuarios[user['user']]['respuestas'] = {};
     estadoJuego.usuarios[user['user']]['puntajePP'] = [];
-    estadoJuego.usuarios[user['user']]['puntajeTotalUser'] = [];
+    estadoJuego.usuarios[user['user']]['puntajeTotalUser'] = 0;
     estadoJuego.usuarios[user['user']]['termino'] = false;
-    //enviarle al usuario el estado actual del juego
+    estadoJuego.numUsers++;
+    socket.emit('estadoJuego', estadoActualJuego());
+    socket.emit('misResultados', estadoJuego.usuarios[user['user']]);
+    socket.emit('allQuestion', bdquestions);
 }
 
 function checkUser(user, socket) {
     user['user'] = user['user'].toLowerCase();
-    var ok = estadoJuego.usuarios.hasOwnProperty(user['user']);
+    if(user.hasOwnProperty('user') && user.hasOwnProperty('pass') && user['user'] !== '' && user['pass'] !== ''){
+        var ok = estadoJuego.usuarios.hasOwnProperty(user['user']);
         if (ok) {
             if(estadoJuego.usuarios[user['user']]['pass'] == user['pass']) {
                 //si es el administrador
@@ -114,18 +136,59 @@ function checkUser(user, socket) {
                     socket.emit('adminCorrectAns', bdanswers);
                     //cambiar como se reciben las passwords en el front y los resultados ahora todo va en usuarios
                 }else{
-                    if(liberarDetalle){
+                    if(estadoJuego.liberarDetalle){
                         socket.emit('adminCorrectAns', bdanswers);
                     }
                     socket.emit('misResultados', estadoJuego.usuarios[user['user']]);
                 }
                 socket.emit('allQuestion', bdquestions);
-                socket.emit('estadisticas', estadoJuego.estadisticas);
-                socket.emit('detalleLiberado', estadoJuego.liberarDetalle)
+                socket.emit('estadoJuego', estadoActualJuego());
+                return;
             }else{
-                socket.emit('userNotValid', '');
+                socket.emit('userNotValid', {error: "Contraseña incorrecta"});
             }
         }else{
-            socket.emit('userNotValid', '');
+            socket.emit('userNotValid', {error: "El usuario no existe"});
         }
+    }
+}
+
+function deleteUser(user) {
+    user['user'] = user['user'].toLowerCase();
+        var ok = estadoJuego.usuarios.hasOwnProperty(user['user']);
+        if (ok) {
+            if(estadoJuego.usuarios[user['user']]['pass'] == user['pass']) {
+                delete estadoJuego.usuarios[user['user']];
+                estadoJuego.numUsers--;
+            }
+        }
+}
+
+function iniciarCuestionario(user) {
+    user['user'] = user['user'].toLowerCase();
+    var ok = estadoJuego.usuarios.hasOwnProperty(user['user']);
+    if (ok && user['user'] === estadoJuego.userAdmin && estadoJuego.passAdmin === user['pass']){
+        console.log("inicie cuestionario")
+        estadoJuego.gameBegin= true;
+        estadoJuego.gameRest= estadoJuego.totalTime;
+        estadoJuego.juegoId= setInterval(juegoPreguntas, estadoJuego.pasoTiempo);
+        //inicializar contador, set tiempo de inicio e ir revisando cada minuto hasta que se termine el tiempo
+    }
+}
+
+function juegoPreguntas() {
+    if(estadoJuego.gameRest > estadoJuego.pasoTiempo){
+        estadoJuego.gameRest-=estadoJuego.pasoTiempo;
+    }else{
+        limpiarJuego();
+    }
+    io.sockets.emit('estadoJuego', estadoActualJuego());
+}
+
+function limpiarJuego() {
+    clearInterval(estadoJuego.juegoId);
+    estadoJuego.juegoId = 0;
+    estadoJuego.gameBegin= false;
+    estadoJuego.gameRest=estadoJuego.totalTime;
+    estadoJuego.gameEnd= true;
 }

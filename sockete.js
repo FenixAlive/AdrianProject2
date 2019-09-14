@@ -205,7 +205,6 @@ function juegoPreguntas(io){
         gameOver(io);
         return;
     }
-    
 }
 
 function emitQuestion(){
