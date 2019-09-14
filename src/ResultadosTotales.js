@@ -21,7 +21,7 @@ export default class ResultadosTotales extends Component {
         this.setState({
             answers: this.props.ans,
             results: this.props.res,
-            detalle: false,
+            detalle: '',
             passwords: this.props.passwords
         })
     }

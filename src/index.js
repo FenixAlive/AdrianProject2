@@ -318,6 +318,7 @@ class App extends Component {
                             questions={this.state.questions}
                             correctAns ={this.state.correctAns}
                             user = {this.state.username}
+                            detalle = {this.state.liberarDetalle}
                         />
                         <ResultadosTotales 
                             ans={this.state.answers} 

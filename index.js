@@ -143,7 +143,7 @@ io.on('connection', socket => {
             io.sockets.emit('resultados', {ans: respuestas, res: respuestasOk});
             io.sockets.emit('allQuestion', bdquestions);
             io.sockets.emit('adminCorrectAns', bdanswers);
-            socket.emit('detalleLiberado', liberarDetalle)
+            io.sockets.emit('detalleLiberado', liberarDetalle)
         }
     })
 
@@ -175,6 +175,7 @@ function checkUser(user, socket) {
                 }
                 socket.emit('allQuestion', bdquestions);
                 socket.emit('resultados', {ans: respuestas, res: respuestasOk});
+                socket.emit('detalleLiberado', liberarDetalle)
             }else{
                 socket.emit('userNotValid', '');
             }
