@@ -32,8 +32,8 @@ server.listen(app.get('port'), ()=>{
 //variables de estado
 var estadoJuego = {
     gameBegin: false,
-    totalTime: 5*60*1000, //milisegundos
-    pasoTiempo: 1000, //aumentar el tiempo al final
+    totalTime: 10*60*1000, //milisegundos
+    pasoTiempo: 10000, //aumentar el tiempo al final
     gameRest: 0, 
     gameEnd: false,
     juegoId: 0,

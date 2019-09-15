@@ -12,7 +12,6 @@ import 'bootstrap/dist/css/bootstrap.css';
 
 import io from 'socket.io-client';
 //TODO Futuro: ver como agregar base de datos y deploy
-//Agregar modal
 class App extends Component {
     constructor() {
         super();
@@ -22,7 +21,7 @@ class App extends Component {
             username: '',
             password: '',
             userOk: false,
-            answers: {}, //va guardando las respuestas ver si puedo solo mandarlas al back e ir actualizando miResultado
+            answers: [], //va guardando las respuestas ver si puedo solo mandarlas al back e ir actualizando miResultado
             questions: [],
             correctAns: [],
             modal: false,
@@ -106,7 +105,6 @@ class App extends Component {
             })
         })
         this.socket.on('estadoJuego', estadoJuego=>{
-            console.log(estadoJuego)
             this.setState({
                 estadoJuego
             })
@@ -256,6 +254,7 @@ class App extends Component {
                     hans={this.handleAnswer} 
                     estadoJuego={this.state.estadoJuego}
                     questions={this.state.questions}
+                    answers={this.state.answers}
                     termine={this.handleTermine}
                 />
             </div>

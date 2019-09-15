@@ -19,19 +19,34 @@ export default class Options extends Component {
 
   componentDidMount() {
     this._isMounted = true;
+    console.log("answer", this.props.answer)
+    if(this.props.answer != undefined){
+      var answered = true;
+      var answer = this.props.answer
+    }else{
+      var answered = false;
+      var answer;
+    }
+    this.setState({
+      nq: this.props.question.nq,
+      question: this.props.question.question,
+      options: this.props.question.options,
+      answered,
+      answer
+    })
     
   }
   componentWillUnmount() {
     this._isMounted = false;
   }
   handleOpc(option) {
+    console.log("answer", option)
     this.setState(
       {
         answered: true,
         answer: option
       },
       () => {
-        sessionStorage.setItem("stateQuestion", JSON.stringify(this.state));
       }
     );
     let ans = {
@@ -41,10 +56,8 @@ export default class Options extends Component {
     this.props.hans(ans);
   }
   render() {
-    console.log("option question",this.props.question)
     //pregunta contestada
     if (this.state.answered) {
-      //boton siguiente pregunta
       var options = (
         <div className="my-3 card text-dark">
           <div className="card-header"> Tu Respuesta </div>

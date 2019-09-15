@@ -24,18 +24,19 @@ export default class Questions extends Component {
             return null;
     }
     render() {
+        //<Time time={this.state.time} nq={this.state.nq} />
         //por cada pregunta cambiar el map por una selección de preguntas
         //Poner boton para enviar todas las respuestas
         return (
             <div id="opContainer" className="">
-                <Time time={this.state.time} nq={this.state.nq} />
                 {this.props.questions.map((val, idx)=>{
                     return <Options
                         key={idx}
-                        hans={this.props.handleAnswer} 
+                        hans={this.props.hans} 
                         estadoJuego={this.props.estadoJuego}
                         question={val}
                         termine={this.props.handleTermine}
+                        answer={this.props.answers[idx]}
                     />
                 })}
             </div>
