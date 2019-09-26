@@ -21,7 +21,7 @@ class App extends Component {
             username: '',
             password: '',
             userOk: false,
-            answers: [], //va guardando las respuestas ver si puedo solo mandarlas al back e ir actualizando miResultado
+            answers: [], 
             questions: [],
             correctAns: [],
             modal: false,
@@ -84,7 +84,7 @@ class App extends Component {
                 })
             }
             this.setState({
-                answers: {}, 
+                answers: [], 
                 questions: [],
                 correctAns: [],
                 modal: false,
@@ -110,9 +110,9 @@ class App extends Component {
             })
         });
         this.socket.on('misResultados', miResultado=>{
-            console.log(miResultado);
             this.setState({
-                miResultado
+                miResultado: miResultado
+            }, () => {
             })
         });
         this.socket.on('usuarios', datosUsuarios=>{
@@ -197,12 +197,16 @@ class App extends Component {
         this.socket.emit('iniciarCuestionario', {user: this.state.username, pass: this.state.password});
     }
     handleAnswer(answer){
-        var ans = {
-            id: this.state.username,
-            q: answer['q'],
-            ans: answer['ans']
+        var temporal = [];
+        for(let i=0; i<this.state.estadoJuego.totpreg; i++){
+            temporal[i] = this.state.answers[i];
         }
-        this.socket.emit('answer', ans);
+        temporal[answer.q-1] = answer.ans;
+        //agregar answer al state
+        this.setState({
+                answers: temporal,
+        }, ()=>{
+        })
     }
     handleReboot(){
         this.socket.emit('reboot', {user: this.state.username, pass: this.state.password});
@@ -214,9 +218,9 @@ class App extends Component {
         console.log("Modal")
     }
     handleTermine(){
-        //enviar socket emit de termine preguntas para que me diga mi calificación
-        //enviarle misResultados desde backend
+        //checar si estan contestadas todas las respuestas sino advertirle antes de enviarlas
         console.log(this.state.answers)
+        this.socket.emit('termine', {usuario: {user: this.state.username, pass: this.state.password}, res: this.state.answers})
     }
     render() {
         //boton reiniciar todo
@@ -240,22 +244,22 @@ class App extends Component {
             var usuarioDiv = '';
         }
         //boton iniciar partida
-        if(this.state.admin && !this.state.estadoJuego.gameEnd && this.state.userOk) {
-            var btnIniciar = <button onClick={this.handleBeginGame} className="container btn btn-primary my-5 py-3 btn-block">Iniciar Cuestionario</button>
-        }else if (!this.state.admin && !this.state.estadoJuego.gameEnd && this.state.userOk){
+        if(this.state.admin && !this.state.estadoJuego.gameBegin && !this.state.estadoJuego.gameEnd && this.state.userOk) {
+            var btnIniciar = <button onClick={this.handleBeginGame} className="container btn btn-outline-primary my-5 py-3 btn-block">Iniciar Cuestionario</button>
+        }else if (!this.state.admin && !this.state.estadoJuego.gameBegin && !this.state.estadoJuego.gameEnd && this.state.userOk){
             var btnIniciar = <div className="bg-dark  my-5 py-3 card container text-white">Espere a que el Administrador Inicie el Cuestionario. </div>
         }else {
             var btnIniciar = "";
         }
         //Main de acuerdo a si ya terminaste el examen o no
-        if(this.state.estadoJuego.gameBegin && !this.state.miResultado.termino) {
+        if(this.state.estadoJuego.gameBegin && !this.state.miResultado.termino && this.state.userOk && !this.state.estadoJuego.gameEnd) {
             var main = <div className="main">
                 <Questions
                     hans={this.handleAnswer} 
                     estadoJuego={this.state.estadoJuego}
                     questions={this.state.questions}
                     answers={this.state.answers}
-                    termine={this.handleTermine}
+                    hanTermine={this.handleTermine}
                 />
             </div>
         }else {
@@ -300,11 +304,11 @@ class App extends Component {
                 </div>
                 {main}
                 <Modal 
-                        modalOpen={this.state.modal}
-                        modalData={this.state.modalData}
+                    modalOpen={this.state.modal}
+                    modalData={this.state.modalData}
                     />
                 <Estadisticas 
-                            estadoJuego={this.state.estadoJuego}
+                    estadoJuego={this.state.estadoJuego}
                 />
                 <Footer />
             </div>

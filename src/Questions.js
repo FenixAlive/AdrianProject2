@@ -7,8 +7,11 @@ export default class Questions extends Component {
         super(props);
         this.state = {
             time: 0,
-            nq: -1
+            nq: -1,
+            error: false
         }
+        this.handleTermine = this.handleTermine.bind(this);
+        this.handleRegresarAContestar = this.handleRegresarAContestar.bind(this);
     }
     componentDidMount(){
         this.setState({
@@ -23,23 +26,54 @@ export default class Questions extends Component {
         }
             return null;
     }
+    handleTermine(){
+        var ok = true;
+        for(let i=0; i<this.props.estadoJuego.totpreg; i++){
+            if(this.props.answers[i] === undefined){
+                ok = false;
+                this.setState({
+                    error: true
+                })
+                break;
+            }
+        }
+        if(ok){
+            this.props.hanTermine();
+        }
+    }
+    handleRegresarAContestar(){
+        this.setState({
+            error: false
+        })
+    }
     render() {
         //<Time time={this.state.time} nq={this.state.nq} />
         //por cada pregunta cambiar el map por una selección de preguntas
-        //Poner boton para enviar todas las respuestas
-        return (
-            <div id="opContainer" className="">
-                {this.props.questions.map((val, idx)=>{
-                    return <Options
-                        key={idx}
-                        hans={this.props.hans} 
-                        estadoJuego={this.props.estadoJuego}
-                        question={val}
-                        termine={this.props.handleTermine}
-                        answer={this.props.answers[idx]}
-                    />
-                })}
-            </div>
-        )
+        if(this.state.error){
+            return (
+                <div id="opContainer" className="">
+                    <div className ="container"> 
+                        <h5 className="m-5">No se han contestado todas las preguntas</h5>
+                        <button className="btn btn-info my-5 py-3 btn-block" onClick={this.handleRegresarAContestar}>Regresar a contestar las faltantes</button>
+                        <button className="btn btn-danger my-5 py-3 btn-block" onClick={this.props.hanTermine}>Enviar</button>
+                    </div>
+                </div>
+            )
+        }else{
+            return (
+                <div id="opContainer" className="">
+                    {this.props.questions.map((val, idx)=>{
+                        return <Options
+                            key={idx}
+                            hans={this.props.hans} 
+                            estadoJuego={this.props.estadoJuego}
+                            question={val}
+                            answer={this.props.answers[idx]}
+                        />
+                    })}
+                    <div className ="container"> <button className="btn btn-primary my-5 py-3 btn-block" onClick={this.handleTermine}>Enviar Respuestas</button></div>
+                </div>
+            )
+        }
     }
 }

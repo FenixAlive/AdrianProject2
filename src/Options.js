@@ -12,14 +12,14 @@ export default class Options extends Component {
       answer: { opt: "", ans: "" },
       answered: false,
       gameOver: false,
-      colors: ["primary", "danger", "success", "warning", "secondary", "info"]
+      colors: ["info", "danger", "success", "warning", "secondary"]
     };
     this.handleOpc = this.handleOpc.bind(this);
+    this.handleCancel = this.handleCancel.bind(this);
   }
 
   componentDidMount() {
     this._isMounted = true;
-    console.log("answer", this.props.answer)
     if(this.props.answer != undefined){
       var answered = true;
       var answer = this.props.answer
@@ -39,8 +39,23 @@ export default class Options extends Component {
   componentWillUnmount() {
     this._isMounted = false;
   }
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if(nextProps.answer !== prevState.answer) {
+        if(nextProps.answer !== undefined){
+          var answered = true;
+          var answer = nextProps.answer;
+        }else{
+            var answered = false;
+            var answer = { opt: "", ans: "" };
+        }
+        return {
+          answer: answer,
+          answered: answered,
+        }
+    }
+    return null;
+}
   handleOpc(option) {
-    console.log("answer", option)
     this.setState(
       {
         answered: true,
@@ -51,7 +66,22 @@ export default class Options extends Component {
     );
     let ans = {
       q: this.state.nq,
-      ans: option.opt
+      ans: option
+    };
+    this.props.hans(ans);
+  }
+  handleCancel(){
+    this.setState(
+      {
+        answered: false,
+        answer: { opt: "", ans: "" },
+      },
+      () => {
+      }
+    );
+    let ans = {
+      q: this.state.nq,
+      ans: undefined
     };
     this.props.hans(ans);
   }
@@ -65,6 +95,7 @@ export default class Options extends Component {
             <span> {this.state.answer.opt}</span>
             <span> {") "+this.state.answer.ans}</span>
           </div>
+          <div className="m-3"><button className="btn btn-outline-danger" onClick={this.handleCancel}>Cambiar Respuesta</button></div>
         </div>
       );
     } else {

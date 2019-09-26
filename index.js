@@ -32,12 +32,12 @@ server.listen(app.get('port'), ()=>{
 //variables de estado
 var estadoJuego = {
     gameBegin: false,
-    totalTime: 10*60*1000, //milisegundos
-    pasoTiempo: 10000, //aumentar el tiempo al final
+    totalTime: 60*1000,//36*60*60*1000, //milisegundos, aqui son 36 horas de juego
+    pasoTiempo: 3000, //aumentar el tiempo al final
     gameRest: 0, 
     gameEnd: false,
     juegoId: 0,
-    liberarDetalle: false,
+    liberarDetalle: true, //ver si el administrador lo libera hasta el final
     totpreg: bdquestions.length,
     numUsers: 0,
     estadisticas: [],
@@ -69,11 +69,15 @@ io.on('connection', socket => {
             io.sockets.emit('estadoJuego', estadoActualJuego());
         }
     })
-    //socket.on contestePregunta, ver si hay tiempo para registrar su respuesta, registrar y regresarle actualizado su estado
+    socket.on('reboot', user => {
+        reiniciarJuego(user);
+    })
+    socket.on('termine', data => {
+        terminoUsuario(data, socket);
+    })
 })//finaliza socket
 
 function estadoActualJuego(){
-    console.log(estadoJuego)
     return {
         gameBegin: estadoJuego.gameBegin,
         gameRest: estadoJuego.gameRest,
@@ -113,7 +117,7 @@ function agregarUsuario(user, socket){
     estadoJuego.usuarios[user['user']] = {};
     estadoJuego.usuarios[user['user']]['pass'] = user['pass'];
     estadoJuego.usuarios[user['user']]['id'] = socket.id;
-    estadoJuego.usuarios[user['user']]['respuestas'] = {};
+    estadoJuego.usuarios[user['user']]['respuestas'] = [];
     estadoJuego.usuarios[user['user']]['puntajePP'] = [];
     estadoJuego.usuarios[user['user']]['puntajeTotalUser'] = 0;
     estadoJuego.usuarios[user['user']]['termino'] = false;
@@ -139,8 +143,8 @@ function checkUser(user, socket) {
                     if(estadoJuego.liberarDetalle){
                         socket.emit('adminCorrectAns', bdanswers);
                     }
-                    socket.emit('misResultados', estadoJuego.usuarios[user['user']]);
                 }
+                socket.emit('misResultados', estadoJuego.usuarios[user['user']]);
                 socket.emit('allQuestion', bdquestions);
                 socket.emit('estadoJuego', estadoActualJuego());
                 return;
@@ -172,7 +176,6 @@ function iniciarCuestionario(user) {
         estadoJuego.gameBegin= true;
         estadoJuego.gameRest= estadoJuego.totalTime;
         estadoJuego.juegoId= setInterval(juegoPreguntas, estadoJuego.pasoTiempo);
-        //inicializar contador, set tiempo de inicio e ir revisando cada minuto hasta que se termine el tiempo
     }
 }
 
@@ -187,8 +190,44 @@ function juegoPreguntas() {
 
 function limpiarJuego() {
     clearInterval(estadoJuego.juegoId);
+    console.log("Se terminó el tiempo del juego");
     estadoJuego.juegoId = 0;
     estadoJuego.gameBegin= false;
     estadoJuego.gameRest=estadoJuego.totalTime;
     estadoJuego.gameEnd= true;
+}
+
+function reiniciarJuego() {
+    clearInterval(estadoJuego.juegoId);
+    io.sockets.emit('reboot', '');
+    console.log("Reinicie Juego");
+    estadoJuego.juegoId = 0;
+    estadoJuego.gameBegin= false;
+    estadoJuego.gameRest=estadoJuego.totalTime;
+    estadoJuego.gameEnd= false;
+    estadoJuego.estadisticas = [];
+    Object.keys(estadoJuego.usuarios).map((key, idx)=>{
+        estadoJuego.usuarios[key]['respuestas'] = [];
+        estadoJuego.usuarios[key]['puntajePP'] = [];
+        estadoJuego.usuarios[key]['puntajeTotalUser'] = 0;
+        estadoJuego.usuarios[key]['termino'] = false;
+    });
+}
+
+function terminoUsuario(data, socket){
+    const user = data.usuario;
+    const resultados = data.res;
+    user['user'] = user['user'].toLowerCase();
+    var ok = estadoJuego.usuarios.hasOwnProperty(user['user']);
+    if(ok && estadoJuego.usuarios[user['user']]['pass'] == user['pass']) {
+        estadoJuego.usuarios[user['user']].termino=true;
+        //calificar las respuestas
+        //Agregar sus respuestas a su estadoJuego
+        estadoJuego.usuarios[user['user']]['respuestas'] = resultados;
+        console.log(estadoJuego.usuarios[user['user']]);
+        //agregar la calificación a la estadistica
+        //estadoJuego.estadisticas
+        //regresarle su resultado
+        socket.emit('misResultados', estadoJuego.usuarios[user['user']]);
+    }
 }
