@@ -159,7 +159,8 @@ class App extends Component {
                 this.socket.emit('newUser', {user: this.state.username, pass: this.state.password});
                 sessionStorage.setItem('username', this.state.username);
                 sessionStorage.setItem('password', this.state.password);
-            }else{
+            }else if(!this.state.miResultado.termino){
+                console.log("hola")
                 this.socket.emit('deleteUser', {user: this.state.username, pass: this.state.password});
             }
             this.setState({
@@ -218,8 +219,6 @@ class App extends Component {
         console.log("Modal")
     }
     handleTermine(){
-        //checar si estan contestadas todas las respuestas sino advertirle antes de enviarlas
-        console.log(this.state.answers)
         this.socket.emit('termine', {usuario: {user: this.state.username, pass: this.state.password}, res: this.state.answers})
     }
     render() {
@@ -275,22 +274,21 @@ class App extends Component {
                 handlePass = {this.handlePass}
             />
             {btnIniciar}
+            <ResultadosTotales 
+                datosUsuarios = {this.state.datosUsuarios}
+                admin={this.state.admin}
+                user = {this.state.username}
+                questions={this.state.questions}
+                correctAns ={this.state.correctAns}
+                handleLiberarDetalle = {this.handleLiberarDetalle}
+                estadoJuego={this.state.estadoJuego}
+            />
             <ResultadosPersonales 
                 miResultado = {this.state.miResultado}
-                gameOver={this.state.estadoJuego.gameEnd}
                 admin={this.state.admin}
                 questions={this.state.questions}
                 correctAns ={this.state.correctAns}
                 user = {this.state.username}
-                estadoJuego={this.state.estadoJuego}
-            />
-            <ResultadosTotales 
-                datosUsuarios = {this.state.datosUsuarios}
-                gameOver={this.state.estadoJuego.gameEnd}
-                admin={this.state.admin}
-                questions={this.state.questions}
-                correctAns ={this.state.correctAns}
-                handleLiberarDetalle = {this.handleLiberarDetalle}
                 estadoJuego={this.state.estadoJuego}
             />
             </div>

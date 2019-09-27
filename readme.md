@@ -1,7 +1,6 @@
 Examen Adrian
 
 //TODO:
-Terminar funcion terminoUsuario en back
-Arreglar ResultadosTotales
-Arreglar ResultadosPersonales
-Quitar o arreglar estadisticas
+poner graficas a estadisticas
+limpiar variables no utilizadas y eliminar detalleRespuestas y sockete
+subir a la web

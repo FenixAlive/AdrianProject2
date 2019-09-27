@@ -6,8 +6,8 @@ export default class DetalleRespuestas extends Component {
         var _isMounted = false;
         super(props);
         this.state = {
-            answers: {},
-            results: {},
+            answers: [],
+            results: [],
             numAns: 0,
             total: 0
         }

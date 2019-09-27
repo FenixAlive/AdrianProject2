@@ -53,7 +53,7 @@ export default class Questions extends Component {
             return (
                 <div id="opContainer" className="">
                     <div className ="container"> 
-                        <h5 className="m-5">No se han contestado todas las preguntas</h5>
+                        <h5 className="m-5">No has contestado todas las preguntas</h5>
                         <button className="btn btn-info my-5 py-3 btn-block" onClick={this.handleRegresarAContestar}>Regresar a contestar las faltantes</button>
                         <button className="btn btn-danger my-5 py-3 btn-block" onClick={this.props.hanTermine}>Enviar</button>
                     </div>
@@ -62,6 +62,8 @@ export default class Questions extends Component {
         }else{
             return (
                 <div id="opContainer" className="">
+                    <div className ="container"> <button className="btn btn-primary my-5 py-3 btn-block" onClick={this.handleTermine}>Enviar Respuestas</button></div>
+                    <h5 className="m-5">Contesta las siguientes Preguntas dando clic sobre una opción, al terminar da click sobre el boton enviar:</h5>
                     {this.props.questions.map((val, idx)=>{
                         return <Options
                             key={idx}
@@ -71,7 +73,6 @@ export default class Questions extends Component {
                             answer={this.props.answers[idx]}
                         />
                     })}
-                    <div className ="container"> <button className="btn btn-primary my-5 py-3 btn-block" onClick={this.handleTermine}>Enviar Respuestas</button></div>
                 </div>
             )
         }
