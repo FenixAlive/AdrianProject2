@@ -40,7 +40,7 @@ export default class Estadisticas extends Component {
         }
         if(this.state.numUsers > 0 && this.state.estadistica){
             return (
-                <div className="container">
+                <div className="container chartStat">
                     <div className="card estadistica">
                         <h5 className="card-header">Estadisticas</h5>
                         <div className="card-body">
@@ -56,6 +56,9 @@ export default class Estadisticas extends Component {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div className="">
+                                    chart example
                     </div>
                 </div>
             )

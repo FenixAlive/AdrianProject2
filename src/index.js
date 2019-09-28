@@ -150,7 +150,7 @@ class App extends Component {
 
     handleUser(e) {
         this.setState({
-            username: e.target.value
+            username: e.target.value.toLowerCase()
         })
     }
     handleUserOk() {
@@ -191,7 +191,7 @@ class App extends Component {
     }
     handlePass(e) {
         this.setState({
-            password: e.target.value
+            password: e.target.value.toLowerCase()
         })
     }
     handleBeginGame(){

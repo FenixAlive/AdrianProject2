@@ -7,12 +7,9 @@ export default class ResultadosTotales extends Component {
     var _isMounted = false;
     super(props);
     this.state = {
-      answers: {},
-      results: {},
       detalle: '',
-      passwords: {},
-      //nuevo
-      users: {}
+      users: {},
+      username: ''
     };
     this.handleDetalle = this.handleDetalle.bind(this);
     this.handleLimpiarDetalle = this.handleLimpiarDetalle.bind(this);
@@ -21,7 +18,8 @@ export default class ResultadosTotales extends Component {
     this._isMounted = true;
     if(this._isMounted) {
         this.setState({
-            users: this.props.datosUsuarios
+            users: this.props.datosUsuarios,
+            username: this.props.user
         })
     }
   }
@@ -32,7 +30,8 @@ export default class ResultadosTotales extends Component {
     if(nextProps.datosUsuarios !== prevState.datosUsuarios) {
         if(nextProps.datosUsuarios && nextProps.admin){
             return {
-                users: nextProps.datosUsuarios
+                users: nextProps.datosUsuarios,
+                username: nextProps.user
             }
         }
     }
@@ -54,16 +53,16 @@ export default class ResultadosTotales extends Component {
     }else{
       var liberarDetalle = <button className="btn btn-outline-success btn-block my-3" onClick={this.props.handleLiberarDetalle}>Liberar Respuestas a Usuarios</button>
     }
-    if (this.props.admin && (this.props.estadoJuego.gameBegin || this.props.estadoJuego.gameEnd)) {
+    if (this.props.admin && (this.props.estadoJuego.gameBegin || this.props.estadoJuego.gameEnd) && this.state.users[this.state.username]) {
       if(this.state.detalle == ''){
         return (
           <div className="container">
             <div className="card bg-dark text-white my-5">
                         <div className="card-header">Resultados del Administrador</div>
                         <div className="card-body">
-                            <div>Respuestas correctas: <b className="mx-2">{this.state.users[this.props.user].puntajeTotalUser}</b></div>
+                            <div>Respuestas correctas: <b className="mx-2">{this.state.users[this.state.username].puntajeTotalUser}</b></div>
                             <div>Total de preguntas: <b className="mx-2">{this.props.estadoJuego.totpreg}</b></div>
-                            <div>Calificación: <b className="mx-2">{(this.state.users[this.props.user].puntajeTotalUser*100/this.props.estadoJuego.totpreg).toFixed(2)} %</b></div>
+                            <div>Calificación: <b className="mx-2">{(this.state.users[this.state.username].puntajeTotalUser*100/this.props.estadoJuego.totpreg).toFixed(2)} %</b></div>
                         </div>
             </div>
             <div className="card bg-dark text-white my-5">
@@ -82,7 +81,6 @@ export default class ResultadosTotales extends Component {
                   <tbody>
                       {this.state.users.hasOwnProperty("admin") ?
                           Object.keys(this.state.users).map((el, keyUs)=>{
-                            console.log(el)
                               return <ResUser key={keyUs}
                                         user={el} 
                                         data={this.state.users[el]}
@@ -104,9 +102,9 @@ export default class ResultadosTotales extends Component {
             <div className="card bg-dark text-white my-5">
                         <div className="card-header">Resultados del Administrador</div>
                         <div className="card-body">
-                            <div>Respuestas correctas: <b className="mx-2">{this.state.users[this.props.user].puntajeTotalUser}</b></div>
+                            <div>Respuestas correctas: <b className="mx-2">{this.state.users[this.state.username].puntajeTotalUser}</b></div>
                             <div>Total de preguntas: <b className="mx-2">{this.props.estadoJuego.totpreg}</b></div>
-                            <div>Calificación: <b className="mx-2">{(this.state.users[this.props.user].puntajeTotalUser*100/this.props.estadoJuego.totpreg).toFixed(2)} %</b></div>
+                            <div>Calificación: <b className="mx-2">{(this.state.users[this.state.username].puntajeTotalUser*100/this.props.estadoJuego.totpreg).toFixed(2)} %</b></div>
                         </div>
             </div>
             <div className="card bg-dark text-white my-5">

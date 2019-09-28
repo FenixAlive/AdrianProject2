@@ -92,8 +92,8 @@ export default class Options extends Component {
         <div className="my-3 card text-dark">
           <div className="card-header"> Tu Respuesta </div>
           <div className="card-body">
-            <span> {this.state.answer.opt}</span>
-            <span> {") "+this.state.answer.ans}</span>
+            <span> {this.state.answer.opt+" ) "}</span>
+            <span> {" "+this.state.answer.ans}</span>
           </div>
           <div className="m-3"><button className="btn btn-outline-danger" onClick={this.handleCancel}>Cambiar Respuesta</button></div>
         </div>

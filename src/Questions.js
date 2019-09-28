@@ -62,8 +62,8 @@ export default class Questions extends Component {
         }else{
             return (
                 <div id="opContainer" className="">
-                    <div className ="container"> <button className="btn btn-primary my-5 py-3 btn-block" onClick={this.handleTermine}>Enviar Respuestas</button></div>
                     <h5 className="m-5">Contesta las siguientes Preguntas dando clic sobre una opción, al terminar da click sobre el boton enviar:</h5>
+                    <div className ="container"> <button className="btn btn-primary my-5 py-3 btn-block" onClick={this.handleTermine}>Enviar Respuestas</button></div>
                     {this.props.questions.map((val, idx)=>{
                         return <Options
                             key={idx}

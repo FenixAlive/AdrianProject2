@@ -49,7 +49,7 @@ export default class User extends Component {
                             required
                         />
                         {passError}
-                        <div id="userWarning" className="alert bg-info my-4 text-white">Recuerde sus datos, despues del cuestionario no podrá recuperarlos</div>
+                        <div id="userWarning" className="alert bg-info my-4 text-white">Recuerde sus datos, despues del cuestionario no podrá recuperarlos, no hay distinción entre mayusculas y minusculas</div>
                         <button onClick={this.hUserOk} className="btn btn-outline-success btn-block">Enviar</button>
                     </div>
                 </div>

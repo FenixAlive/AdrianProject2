@@ -253,5 +253,10 @@ function terminoUsuario(data, socket){
         estadoJuego.usuarios[user['user']]['respuestas'] = resultados;
         //regresarle su resultado
         socket.emit('misResultados', estadoJuego.usuarios[user['user']]);
+        //si es el administrador enviarle todas las respuestas hasta el momento
+        if(user['user'] === estadoJuego.userAdmin && estadoJuego.passAdmin === user['pass']){
+            socket.emit('usuarios', estadoJuego.usuarios);
+            socket.emit('adminCorrectAns', bdanswers);
+        }
     }
 }

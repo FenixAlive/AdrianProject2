@@ -3,12 +3,6 @@ body {
     font-family: 'Montserrat', sans-serif !important;
     font-size: 1em !important;
 }
-.contenido{
-
-}
-.navbar {
-
-}
 .main{
     text-align: center;
 }
@@ -31,7 +25,7 @@ body {
     border-radius: 0.3em;
 }
 .usuarioOk{
-    display: inline !important;
+    display: inline-block !important;
     color: #333 !important;
     border: 0.1em solid #777;
     padding: 0.3em 0 0.3em 2em;
@@ -63,9 +57,6 @@ input{
 .btn{
     box-shadow: 0.1em 0.1em 0.17em  #333;
 }
-.card{
-    box-shadow: 0.3em 0.3em 0.7em #333;
-}
 .userEsta{
     border-radius: 0.3em;
     box-shadow: 0.07em 0.07em 0.07em #777;
@@ -78,6 +69,7 @@ input{
 }
 .card {
     overflow: auto !important;
+    box-shadow: 0.3em 0.3em 0.7em #333;
 }
 span{
     display: inline-block !important;
@@ -87,18 +79,38 @@ b{
 }
 .palomita{
     display: inline-block;
+    font-size: 3em !important;
     justify-content: center;
     text-align: center;
-    margin: 0.5em;
+    margin: 0 2em;
 }
 .contRes{
     display: inline-block;
+    font-size: 1.3em !important;
 }
+.chartStat{
+    position: relative;
+    width: 600;
+    height: 550;
+    background: #acf;
+}
+@media screen and (max-width: 700px) {
+    *{
+        font-size: 0.97em !important;
+    }
+  }
+
 @media screen and (max-width: 500px) {
-    body{
-        font-size: 0.7em !important;
+    *{
+        font-size: 0.95em !important;
     }
     .userEsta{
         display: inline-block;
+    }
+  }
+
+  @media screen and (max-width: 370px) {
+    *{
+        font-size: 0.93em !important;
     }
   }
