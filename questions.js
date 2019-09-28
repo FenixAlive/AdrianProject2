@@ -1,102 +1,51 @@
-module.exports = [
+﻿module.exports = [
     {
         nq: 1,
-        question: "¿1-Qdjff qegqeqo qerqero qerg oevf ergo qerbqerb erobqeofbo  eobefbeb effbl qeb ebqerb ebebetb tb etbebqebqeb qebebefbqebqeb qefbqfbqb?",
+        question: "¿Cuál de las siguientes opciones no es una ventaja de un banco internacional sobre uno domestico?",
         options: [
-            {opt: 'a', ans: "lorem erg oevf ergo qerbqe"},
-            {opt: 'b', ans: " un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas  las cuales conten"},
-            {opt: 'c', ans: "iendo que este adquiera mas de 2000 años de antiguedad. Richard McClintock, un profesor de Latin de la Universidad de Hampden-Sydn"},
-            {opt: 'd', ans: "ae sem ultrices, volutpat enim eu, molestie dolor. Proin dignissim magna odio, sit amet egestas arcu blandit eget. Sed non nulla nec mauris pulvinar imperdiet a sed arcu. Fusce tempor justo lorem, ut condimentum massa placerat vel. Sed quis tortor bibendum, dapibus dolor at, venenatis erat. Etiam blandit ex quis ornare fermentum. Ut sed nulla eget justo placerat egestas. Curabitur nec laoreet massa"}
+            {opt: 'a', ans: "Establecimiento de una mayor tasa de interés"},
+            {opt: 'b', ans: " Mayor conocimiento"},
+            {opt: 'c', ans: "Ventaja en reglamentación"},
+            {opt: 'd', ans: "Prestigio y marca"}
         ]
     },
     {
         nq: 2,
-        question: "¿2 lorem ipsum?",
+        question: "¿Cuál es una de las opciones para que un banco opere a nivel internacional?",
         options: [
-            {opt: 'a', ans: "iat enim. Donec cursus dapibus justo, suscipit iaculis libero ultrices non. Pellentesque neque nunc, tempor a sem sed, tempus convallis enim"},
-            {opt: 'b', ans: "mentum a. Pellentesque sed arcu vel dui cursus volutpat. Cras eget ante a lacus condimentum sagittis eu nec quam. Aenean placerat ve"},
-            {opt: 'c', ans: "vel nisl ultricies lobortis. Aliquam id lacus diam. Fusce tempor, nunc sed venenatis imperdiet, sem dolor ultrices nisl, eu viverra magn"},
-            {opt: 'd', ans: "nt morbi tristique senectus et netus et malesuada fames ac turpis egestas. Integer id tortor a elit lacinia rutrum ac sed dolor. Donec varius gravida mattis. Donec dapibus metus sed sem dictum, nec dapibus magna pulvinar. Duis facilisis vitae mauris ac tincidunt. Ae"}
+            {opt: 'a', ans: "Una sucursal extranjera"},
+            {opt: 'b', ans: "Una filial extranjera"},
+            {opt: 'c', ans: "Un banco corresponsal"},
+            {opt: 'd', ans: "Todas las anteriores"}
         ]
     },
     {
         nq: 3,
-        question: "¿3 quien eres?",
+        question: "¿Cómo se mide el tamaño de un banco?",
         options: [
-            {opt: 'a', ans: "la fermentum a. Pellentesque sed arcu vel dui cursus volutpat. Cras eget ante a lacus condimentum sagittis eu nec quam. Aenean placer"},
-            {opt: 'b', ans: "ec mauris pulvinar imperdiet a sed arcu. Fusce tempor justo lorem, ut condimentum massa placerat vel. Sed quis tortor bibendum, dapibus dolor at, venenatis erat. Etiam blandit ex quis ornare fermentum. Ut sed nulla eget justo placerat egestas. Curabitur nec lao"},
-            {opt: 'c', ans: "c3"},
-            {opt: 'd', ans: "d3"}
+            {opt: 'a', ans: "Por la cantidad de inversionistas"},
+            {opt: 'b', ans: "Por su capital contable y el valor de activos que maneja"},
+            {opt: 'c', ans: "Por la cantidad de usuarios diarios"},
+            {opt: 'd', ans: "Por el número de cuentas bancarias"}
         ]
     },
     {
         nq: 4,
-        question: "¿4-Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim dignissimos veritatis voluptatibus placeat saepe, harum necessitatibus esse veniam quisquam iure corporis voluptas minus ipsam odit perspiciatis eius ut, quia voluptatem!?",
+        question: "¿Por qué otro nombre se le conoce al mercado internacional de dinero?",
         options: [
-            {opt: 'a', ans: "a4"},
-            {opt: 'b', ans: "ec mauris pulvinar imperdiet a sed arcu. Fusce tempor justo lorem, ut condimentum massa placerat vel. Sed quis tortor bibendum, dapibus dolor at, venenatis erat. Etiam blandit ex quis ornare fermentum. Ut sed nulla eget justo placerat egestas. Curabitur nec lao"},
-            {opt: 'c', ans: "c4"},
-            {opt: 'd', ans: "d4"}
+            {opt: 'a', ans: "Mercado de monedas internacional"},
+            {opt: 'b', ans: "Mercado internacional financiero"},
+            {opt: 'c', ans: "Mercado internacional de divisas"},
+            {opt: 'd', ans: "Mercado de euromonedas"}
         ]
     },
     {
         nq: 5,
-        question: "¿5?",
+        question: "¿Los emisores de eurobonos conocen siempre la identidad del portador?",
         options: [
-            {opt: 'a', ans: "a5"},
-            {opt: 'b', ans: "b5"},
-            {opt: 'c', ans: "c5"},
-            {opt: 'd', ans: "d5"}
-        ]
-    },
-    {
-        nq: 6,
-        question: "¿6-jejjejejejejjejeje?",
-        options: [
-            {opt: 'a', ans: "a6"},
-            {opt: 'b', ans: "b6"},
-            {opt: 'c', ans: "c6"},
-            {opt: 'd', ans: "d6"}
-        ]
-    },
-    {
-        nq: 7,
-        question: "¿7-Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim dignissimos veritatis voluptatibus placeat saepe, harum necessitatibus esse veniam quisquam iure corporis voluptas minus ipsam odit perspiciatis eius ut, quia voluptatem!?",
-        options: [
-            {opt: 'a', ans: "a7"},
-            {opt: 'b', ans: "b7"},
-            {opt: 'c', ans: "c7"},
-            {opt: 'd', ans: "d7"}
-        ]
-    },
-    {
-        nq: 8,
-        question: "¿8?",
-        options: [
-            {opt: 'a', ans: "a8"},
-            {opt: 'b', ans: "b8"},
-            {opt: 'c', ans: "c8"},
-            {opt: 'd', ans: "d8"}
-        ]
-    },
-    {
-        nq: 9,
-        question: "¿9?",
-        options: [
-            {opt: 'a', ans: "a9"},
-            {opt: 'b', ans: "b9"},
-            {opt: 'c', ans: "c9"},
-            {opt: 'd', ans: "d9"}
-        ]
-    },
-    {
-        nq: 10,
-        question: "¿10?",
-        options: [
-            {opt: 'a', ans: "a10"},
-            {opt: 'b', ans: "b10"},
-            {opt: 'c', ans: "c10"},
-            {opt: 'd', ans: "d10"}
+            {opt: 'a', ans: "Verdadero"},
+            {opt: 'b', ans: "Falso"},
+            
         ]
     },
 ]

@@ -37,7 +37,7 @@ var estadoJuego = {
     gameRest: 0, 
     gameEnd: false,
     juegoId: 0,
-    liberarDetalle: false, //ver si el administrador lo libera hasta el final
+    liberarDetalle: true, //ver si el administrador lo libera hasta el final
     totpreg: bdquestions.length,
     numUsers: 0,
     estadisticas: [],
@@ -80,6 +80,11 @@ io.on('connection', socket => {
     })
     socket.on('termine', data => {
         terminoUsuario(data, socket);
+    })
+    socket.on('adminEstado', user => {
+        if(user['user'] === estadoJuego.userAdmin && estadoJuego.passAdmin === user['pass']){
+            socket.emit('usuarios', estadoJuego.usuarios);
+        }
     })
 })//finaliza socket
 
@@ -253,10 +258,10 @@ function terminoUsuario(data, socket){
         estadoJuego.usuarios[user['user']]['respuestas'] = resultados;
         //regresarle su resultado
         socket.emit('misResultados', estadoJuego.usuarios[user['user']]);
+        socket.emit('adminCorrectAns', bdanswers);
         //si es el administrador enviarle todas las respuestas hasta el momento
         if(user['user'] === estadoJuego.userAdmin && estadoJuego.passAdmin === user['pass']){
             socket.emit('usuarios', estadoJuego.usuarios);
-            socket.emit('adminCorrectAns', bdanswers);
         }
     }
 }

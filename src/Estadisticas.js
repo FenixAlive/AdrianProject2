@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 
 export default class Estadisticas extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             users: [],
             estadistica: [],
@@ -28,8 +28,6 @@ export default class Estadisticas extends Component {
             return null;
         }
     }
-//hacer una grafica con las estadisticas
-//{(this.state.numUsers-1 === idx) ? el : el+", "}
     render() {
         if(this.state.estadistica && this.state.numUsers > 0){
             var titulo;
@@ -40,7 +38,7 @@ export default class Estadisticas extends Component {
         }
         if(this.state.numUsers > 0 && this.state.estadistica){
             return (
-                <div className="container chartStat">
+                <div className="container">
                     <div className="card estadistica">
                         <h5 className="card-header">Estadisticas</h5>
                         <div className="card-body">
@@ -58,7 +56,7 @@ export default class Estadisticas extends Component {
                         </div>
                     </div>
                     <div className="">
-                                    chart example
+                        
                     </div>
                 </div>
             )

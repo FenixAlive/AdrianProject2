@@ -108,6 +108,9 @@ class App extends Component {
             this.setState({
                 estadoJuego
             })
+            if(this.state.admin){
+                this.socket.emit('adminEstado', {user: this.state.username, pass: this.state.password});
+            }
         });
         this.socket.on('misResultados', miResultado=>{
             this.setState({
@@ -275,6 +278,7 @@ class App extends Component {
             />
             {btnIniciar}
             <ResultadosTotales 
+                userOk={this.state.userOk} 
                 datosUsuarios = {this.state.datosUsuarios}
                 admin={this.state.admin}
                 user = {this.state.username}
@@ -283,7 +287,8 @@ class App extends Component {
                 handleLiberarDetalle = {this.handleLiberarDetalle}
                 estadoJuego={this.state.estadoJuego}
             />
-            <ResultadosPersonales 
+            <ResultadosPersonales
+                userOk={this.state.userOk} 
                 miResultado = {this.state.miResultado}
                 admin={this.state.admin}
                 questions={this.state.questions}

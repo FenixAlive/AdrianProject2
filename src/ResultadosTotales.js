@@ -53,7 +53,7 @@ export default class ResultadosTotales extends Component {
     }else{
       var liberarDetalle = <button className="btn btn-outline-success btn-block my-3" onClick={this.props.handleLiberarDetalle}>Liberar Respuestas a Usuarios</button>
     }
-    if (this.props.admin && (this.props.estadoJuego.gameBegin || this.props.estadoJuego.gameEnd) && this.state.users[this.state.username]) {
+    if (this.props.admin && this.props.userOk && (this.props.estadoJuego.gameBegin || this.props.estadoJuego.gameEnd) && this.state.users[this.state.username]) {
       if(this.state.detalle == ''){
         return (
           <div className="container">
@@ -96,7 +96,7 @@ export default class ResultadosTotales extends Component {
             </div>
           </div>
         );
-      }else{
+      }else {
         return (
           <div className="container">
             <div className="card bg-dark text-white my-5">
@@ -128,7 +128,7 @@ export default class ResultadosTotales extends Component {
           </div>
           </div>
         );
-      }
+      } 
     } else {
       return <React.Fragment />;
     }

@@ -12,7 +12,7 @@ export default class Options extends Component {
       answer: { opt: "", ans: "" },
       answered: false,
       gameOver: false,
-      colors: ["info", "danger", "success", "warning", "secondary"]
+      colors: ["info", "danger", "primary", "warning", "secondary"]
     };
     this.handleOpc = this.handleOpc.bind(this);
     this.handleCancel = this.handleCancel.bind(this);

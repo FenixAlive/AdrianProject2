@@ -3,8 +3,8 @@ import OpcionesResultados from './OpcionesResultados'
 
 export default class ResultadosPersonales extends Component {
     constructor(props){
-        var _isMounted = false;
         super(props);
+        var _isMounted = false;
         this.state = {
             user: '',
             answers: [],
@@ -57,7 +57,7 @@ export default class ResultadosPersonales extends Component {
     
     //hacer resumen de los resultados
     render() {
-        if(!this.props.admin && this.state.termine && this.state.answers) {
+        if(!this.props.admin && this.props.userOk && this.state.termine && this.state.answers) {
             if(this.state.detalle){
                 return (
                     <div className="container">
