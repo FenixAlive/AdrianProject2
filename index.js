@@ -2,7 +2,6 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const path = require('path');
-const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const bdquestions = require(path.join(__dirname, 'questions'))
 const bdanswers = require(path.join(__dirname, 'answers'))
@@ -17,7 +16,6 @@ app.use(webpackDevMiddleware(webpack(config)));
 //app
 app.set('port', process.env.PORT || 3000);
 app.use(bodyParser.urlencoded({extended: false}));
-app.use(morgan('dev')); //quitar en producción o ver documentación
 app.use(express.static(path.join(__dirname, 'public')));
 const server = http.createServer(app);
 io = socketIo(server);

@@ -26,7 +26,6 @@ class App extends Component {
             correctAns: [],
             modal: false,
             modalData: {},
-            //nuevos
             estadoJuego: {},
             datosUsuarios: {},
             miResultado: {},
@@ -89,7 +88,6 @@ class App extends Component {
                 correctAns: [],
                 modal: false,
                 modalData: {},
-                //nuevos
                 estadoJuego: {},
                 datosUsuarios: {},
                 miResultado: {},
@@ -119,7 +117,6 @@ class App extends Component {
             })
         });
         this.socket.on('usuarios', datosUsuarios=>{
-            console.log(datosUsuarios);
             this.setState({
                 datosUsuarios
             })
@@ -163,7 +160,6 @@ class App extends Component {
                 sessionStorage.setItem('username', this.state.username);
                 sessionStorage.setItem('password', this.state.password);
             }else if(!this.state.miResultado.termino){
-                console.log("hola")
                 this.socket.emit('deleteUser', {user: this.state.username, pass: this.state.password});
             }
             this.setState({
@@ -199,6 +195,7 @@ class App extends Component {
     }
     handleBeginGame(){
         this.socket.emit('iniciarCuestionario', {user: this.state.username, pass: this.state.password});
+        document.getElementById("iniciarBtn").classList.add("borrarBtn", "disabled");
     }
     handleAnswer(answer){
         var temporal = [];
@@ -247,7 +244,7 @@ class App extends Component {
         }
         //boton iniciar partida
         if(this.state.admin && !this.state.estadoJuego.gameBegin && !this.state.estadoJuego.gameEnd && this.state.userOk) {
-            var btnIniciar = <button onClick={this.handleBeginGame} className="container btn btn-outline-primary my-5 py-3 btn-block">Iniciar Cuestionario</button>
+            var btnIniciar = <button onClick={this.handleBeginGame} className="container btn btn-outline-primary my-5 py-3 btn-block" id="iniciarBtn">Iniciar Cuestionario</button>
         }else if (!this.state.admin && !this.state.estadoJuego.gameBegin && !this.state.estadoJuego.gameEnd && this.state.userOk){
             var btnIniciar = <div className="bg-dark  my-5 py-3 card container text-white">Espere a que el Administrador Inicie el Cuestionario. </div>
         }else {
@@ -301,7 +298,7 @@ class App extends Component {
         return (
             <div className="container-fluid contenido">
                 <div className="navbar navbar-expand-lg navbar-light bg-light d-flex justify-content-around">
-                    <div className="titulo navbar-text mx-3 my-2">Cuestionario de Adrian</div>
+                    <div className="titulo navbar-text mx-3 my-2">Ai ._. 愛</div>
                     {usuarioDiv}
                     <div className="divBtnReiniciar mx-3 my-2">{btnReboot}</div>
                 </div>
