@@ -54,8 +54,6 @@ export default class Chart extends Component {
     componentDidMount() {
         this._isMounted = true;
         if(this._isMounted) {
-            console.log(this.props.estadistica)
-
             this.setState(state =>{
                 state.data.datasets.data = this.props.estadistica
                 return {data: state}

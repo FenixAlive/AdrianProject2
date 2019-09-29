@@ -6,6 +6,11 @@ const bodyParser = require('body-parser');
 const bdquestions = require(path.join(__dirname, 'questions'))
 const bdanswers = require(path.join(__dirname, 'answers'))
 const app = express();
+//mongoose
+const mongoose = require('mongoose');
+//modelos
+const userModel = require('./src/models/User');
+const estadoJuegoModel = require('./src/models/estadoJuego');
 
 /*
 //webpack
@@ -14,25 +19,31 @@ const webpackDevMiddleware = require('webpack-dev-middleware');
 const config = require('./webpack.config');
 app.use(webpackDevMiddleware(webpack(config)));
 */
-//app
-app.set('port', process.env.PORT || 3000);
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(express.static(path.join(__dirname, 'public')));
-const server = http.createServer(app);
-io = socketIo(server);
 
-//inicia servidor
-server.listen(app.get('port'), ()=>{
-    console.log("Server Running", app.get('port'));
-})
+//conectar a base de datos
+const contra = 'znkSIzCpN0nYMfSp';
+const user = 'aifenix';
+const uri = `mongodb+srv://${user}:${contra}@cluster0-zejxg.mongodb.net/test?retryWrites=true&w=majority`;
 
-//socket
+mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.set('useCreateIndex', true);
+mongoose.set('useFindAndModify', false);
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', () => {
+  console.log("conectado a MongoDb")
+});
 
+
+//creo variables de estado
 //variables de estado
 var estadoJuego = {
-    gameBegin: true, //poner en falso cuando pueda arreglar la base de datos
+    baseId: undefined,
+    gameBegin: false, 
+    //año, mes, dia - el mes comienza en 0
+    timeBegin: new Date(2019, 09, 05).getTime(),
     totalTime: 36*60*60*1000, //milisegundos, aqui son 36 horas de juego
-    pasoTiempo: 3000, //aumentar el tiempo al final
+    pasoTiempo: 7000, //aumentar el tiempo al final
     gameRest: 0, 
     gameEnd: false,
     juegoId: 0,
@@ -45,16 +56,108 @@ var estadoJuego = {
     usuarios: {
     }
 }
-
-//quitar cuando arregle base de datos o cambiar 
-iniciarCuestionario({user: estadoJuego.userAdmin, pass: estadoJuego.passAdmin});
-
-
 //inicializo las estadisticas en cero
 for(let i = 0; i < estadoJuego.totpreg; i++){
     estadoJuego.estadisticas[i] = 0;
 }
 
+const estadoJuegoBd = async ()=> {
+    if(!estadoJuego.baseId){
+        var estado = await estadoJuegoModel.find();
+        if(estado.length > 0){
+            estadoJuego.baseId = estado[0]._id;
+            estadoJuego.gameBegin = estado[0].gameBegin;
+            estadoJuego.timeBegin = estado[0].timeBegin;
+            estadoJuego.gameEnd = estado[0].gameEnd;
+            estadoJuego.liberarDetalle = estado[0].liberarDetalle;
+            estadoJuego.estadisticas = estado[0].estadisticas;
+            estadoJuego.gameRest = tiempoRestante(estadoJuego.timeBegin);
+        }else{
+            estadoJuego.gameRest = tiempoRestante(estadoJuego.timeBegin);
+            const nuevoEstado = new estadoJuegoModel({
+                gameBegin: estadoJuego.gameBegin,
+                timeBegin: estadoJuego.timeBegin,
+                gameRest: estadoJuego.gameRest,
+                gameEnd: estadoJuego.gameEnd,
+                liberarDetalle: estadoJuego.liberarDetalle,
+                estadisticas: estadoJuego.estadisticas,
+            });
+            estadoJuego.baseId = nuevoEstado._id
+            nuevoEstado.save((err)=>{
+                if(err){
+                    console.log('error al guardar estado: ',err)
+                }
+            });
+        }
+        if(estadoJuego.gameBegin){
+            estadoJuego.juegoId= setInterval(juegoPreguntas, estadoJuego.pasoTiempo);
+        }
+    }else{
+        estadoJuego.gameRest = tiempoRestante(estadoJuego.timeBegin);
+        //solo actualizo la base de datos
+        const nuevoEstado = {
+            gameBegin: estadoJuego.gameBegin,
+            timeBegin: estadoJuego.timeBegin,
+            gameRest: estadoJuego.gameRest,
+            gameEnd: estadoJuego.gameEnd,
+            liberarDetalle: estadoJuego.liberarDetalle,
+            estadisticas: estadoJuego.estadisticas,
+        };
+        await estadoJuegoModel.findByIdAndUpdate(estadoJuego.baseId, nuevoEstado);
+    }
+}
+
+estadoJuegoBd();
+
+//base de datos usuario
+//traer base de datos de usuario al estado (listar usuarios)
+const listarUsuariosBd= async () => {
+    var usuarios = await userModel.find();
+    usuarios.map((val,idx)=>{
+        estadoJuego.usuarios[val.user] = val;
+    })
+    estadoJuego.numUsers = usuarios.length;
+};
+//se corre al reiniciar el servidor
+listarUsuariosBd();
+
+//crear usuario bd
+const crearUsuarioBd = async (userData) => {
+    const nuevoUsuario = new userModel(userData);
+    nuevoUsuario.save(err=>{
+        if(err != null){
+            console.log("error al crear usuario: ", err);
+        }
+    })
+    estadoJuego.usuarios[userData['user']]['id'] = nuevoUsuario._id;
+    estadoJuego.numUsers ++;
+};
+
+// editar usuario Bd
+const editarUsuarioBd = async (userData) => {
+    await userModel.findByIdAndUpdate(userData['id'], userData);
+};
+
+// eliminar usuario bd
+const eliminarUsuarioBd = async (id) => {
+    var hola = await userModel.findByIdAndDelete(id);
+    estadoJuego.numUsers--;
+    io.sockets.emit('estadoJuego', estadoActualJuego());
+}
+
+//app
+app.set('port', process.env.PORT || 5000);
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(express.static(path.join(__dirname, 'public')));
+const server = http.createServer(app);
+io = socketIo(server);
+
+//inicia servidor
+server.listen(app.get('port'), ()=>{
+    console.log("Server Running", app.get('port'));
+})
+
+//socket
 io.on('connection', socket => {
     console.log('socket connected: ', socket.id);
     socket.emit('estadoJuego', estadoActualJuego());
@@ -130,13 +233,13 @@ function newUser(user, socket) {
 
 function agregarUsuario(user, socket){
     estadoJuego.usuarios[user['user']] = {};
+    estadoJuego.usuarios[user['user']]['user'] = user['user'];
     estadoJuego.usuarios[user['user']]['pass'] = user['pass'];
-    estadoJuego.usuarios[user['user']]['id'] = socket.id;
     estadoJuego.usuarios[user['user']]['respuestas'] = [];
     estadoJuego.usuarios[user['user']]['puntajePP'] = [];
     estadoJuego.usuarios[user['user']]['puntajeTotalUser'] = 0;
     estadoJuego.usuarios[user['user']]['termino'] = false;
-    estadoJuego.numUsers++;
+    crearUsuarioBd(estadoJuego.usuarios[user['user']]);
     io.sockets.emit('estadoJuego', estadoActualJuego());
     socket.emit('misResultados', estadoJuego.usuarios[user['user']]);
     socket.emit('allQuestion', bdquestions);
@@ -177,19 +280,19 @@ function deleteUser(user) {
         var ok = estadoJuego.usuarios.hasOwnProperty(user['user']);
         if (ok) {
             if(estadoJuego.usuarios[user['user']]['pass'] == user['pass']) {
+                eliminarUsuarioBd(estadoJuego.usuarios[user['user']]['id'])
                 delete estadoJuego.usuarios[user['user']];
-                estadoJuego.numUsers--;
             }
         }
 }
 
 function iniciarCuestionario(user) {
-    console.log(user)
     user['user'] = user['user'].toLowerCase();
     var ok = estadoJuego.usuarios.hasOwnProperty(user['user']);
     if (ok && user['user'] === estadoJuego.userAdmin && estadoJuego.passAdmin === user['pass']){
         console.log("inicie cuestionario")
         estadoJuego.gameBegin= true;
+        estadoJuego.timeBegin = new Date().getTime();
         estadoJuego.gameRest= estadoJuego.totalTime;
         estadoJuego.juegoId= setInterval(juegoPreguntas, estadoJuego.pasoTiempo);
     }
@@ -201,6 +304,7 @@ function juegoPreguntas() {
     }else{
         limpiarJuego();
     }
+    estadoJuegoBd()
     io.sockets.emit('estadoJuego', estadoActualJuego());
 }
 
@@ -219,17 +323,20 @@ function reiniciarJuego() {
     console.log("Reinicie Juego");
     estadoJuego.juegoId = 0;
     estadoJuego.gameBegin= false;
-    estadoJuego.gameRest=estadoJuego.totalTime;
+    estadoJuego.timeBegin = new Date(2019, 09, 05).getTime();
+    estadoJuego.gameRest=tiempoRestante(estadoJuego.timeBegin);
     estadoJuego.gameEnd= false;
     estadoJuego.estadisticas = [];
     for(let i = 0; i < estadoJuego.totpreg; i++){
         estadoJuego.estadisticas[i] = 0;
     }
+    estadoJuegoBd()
     Object.keys(estadoJuego.usuarios).map((key, idx)=>{
         estadoJuego.usuarios[key]['respuestas'] = [];
         estadoJuego.usuarios[key]['puntajePP'] = [];
         estadoJuego.usuarios[key]['puntajeTotalUser'] = 0;
         estadoJuego.usuarios[key]['termino'] = false;
+        editarUsuarioBd(estadoJuego.usuarios[key]);
     });
 }
 
@@ -259,14 +366,26 @@ function terminoUsuario(data, socket){
                 estadoJuego.usuarios[user['user']]['puntajePP'][i] = 0;
             }
         }
+        estadoJuegoBd()
         //Agregar sus respuestas a su estadoJuego
         estadoJuego.usuarios[user['user']]['respuestas'] = resultados;
         //regresarle su resultado
         socket.emit('misResultados', estadoJuego.usuarios[user['user']]);
         socket.emit('adminCorrectAns', bdanswers);
+        //actualizar Bd de usuario
+        editarUsuarioBd(estadoJuego.usuarios[user['user']]);
         //si es el administrador enviarle todas las respuestas hasta el momento
         if(user['user'] === estadoJuego.userAdmin && estadoJuego.passAdmin === user['pass']){
             socket.emit('usuarios', estadoJuego.usuarios);
         }
     }
+}
+function tiempoRestante(inicio) {
+    const total = estadoJuego.totalTime;
+    const now = new Date().getTime();
+    if(inicio < now && inicio+total > now){
+        estadoJuego.gameBegin= true;
+        return total - (inicio-now);
+    }
+    return 0;
 }
