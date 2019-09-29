@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import ResUser from "./ResUser";
 import OpcionesResultados from './OpcionesResultados'
 import { CSVLink, CSVDownload } from "react-csv";
+import { relativeTimeThreshold } from "moment";
 
 export default class ResultadosTotales extends Component {
   constructor(props) {
@@ -10,7 +11,8 @@ export default class ResultadosTotales extends Component {
     this.state = {
       detalle: '',
       users: {},
-      username: ''
+      username: '',
+      csvData: [['Usuario', 'Contraseña', 'Preguntas Correctas', 'Total de Preguntas', 'Porcentaje Calificación']]
     };
     this.handleDetalle = this.handleDetalle.bind(this);
     this.handleLimpiarDetalle = this.handleLimpiarDetalle.bind(this);
@@ -18,9 +20,16 @@ export default class ResultadosTotales extends Component {
   componentDidMount() {
     this._isMounted = true;
     if(this._isMounted) {
+      if(this.props.datosUsuarios){
+        var csvData = [['Usuario', 'Contraseña', 'Preguntas Correctas', 'Total de Preguntas', 'Porcentaje Calificación']];
+        Object.keys(this.props.datosUsuarios).map((key,value)=>{
+          csvData.push([key, this.props.datosUsuarios[key].pass, this.props.datosUsuarios[key].puntajeTotalUser, this.props.estadoJuego.totpreg,(this.props.datosUsuarios[key].puntajeTotalUser*100/this.props.estadoJuego.totpreg).toFixed(2)]);
+        })
+      }
         this.setState({
             users: this.props.datosUsuarios,
-            username: this.props.user
+            username: this.props.user,
+            csvData
         })
     }
   }
@@ -30,9 +39,14 @@ export default class ResultadosTotales extends Component {
   static getDerivedStateFromProps(nextProps, prevState) {
     if(nextProps.datosUsuarios !== prevState.datosUsuarios) {
         if(nextProps.datosUsuarios && nextProps.admin){
+          var csvData = [['Usuario', 'Contraseña', 'Preguntas Correctas', 'Total de Preguntas', 'Porcentaje Calificación']];
+          Object.keys(nextProps.datosUsuarios).map((key,value)=>{
+            csvData.push([key, nextProps.datosUsuarios[key].pass, nextProps.datosUsuarios[key].puntajeTotalUser, nextProps.estadoJuego.totpreg,(nextProps.datosUsuarios[key].puntajeTotalUser*100/nextProps.estadoJuego.totpreg).toFixed(2)]);
+          })
             return {
                 users: nextProps.datosUsuarios,
-                username: nextProps.user
+                username: nextProps.user,
+                csvData
             }
         }
     }
@@ -49,12 +63,6 @@ export default class ResultadosTotales extends Component {
     })
   }
   render() {
-    const csvData = [
-      ["firstname", "lastname", "email"],
-      ["Ahmed", "Tomi", "ah@smthing.co.com"],
-      ["Raed", "Labes", "rl@smthing.co.com"],
-      ["Yezzi", "Min l3b", "ymin@cocococo.com"]
-    ];
     if(this.props.estadoJuego.liberarDetalle){
       var liberarDetalle;
     }else{
@@ -74,7 +82,7 @@ export default class ResultadosTotales extends Component {
             </div>
             <div className="container">
                 <CSVLink 
-                  data={csvData}
+                  data={this.state.csvData}
                   filename={"ResultadosAi.csv"}
                 >
                   <button className="btn btn-outline-info btn-block">
@@ -152,3 +160,11 @@ export default class ResultadosTotales extends Component {
     }
   }
 }
+/*
+   const csvData = [
+      ["firstname", "lastname", "email"],
+      ["Ahmed", "Tomi", "ah@smthing.co.com"],
+      ["Raed", "Labes", "rl@smthing.co.com"],
+      ["Yezzi", "Min l3b", "ymin@cocococo.com"]
+    ];
+    */
