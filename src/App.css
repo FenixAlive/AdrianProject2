@@ -91,6 +91,7 @@ b{
 .borrarBtn{
     display: none !important;
 }
+
 @media screen and (max-width: 700px) {
     *{
         font-size: 0.97em !important;

@@ -298,7 +298,7 @@ class App extends Component {
         return (
             <div className="container-fluid contenido">
                 <div className="navbar navbar-expand-lg navbar-light bg-light d-flex justify-content-around">
-                    <div className="titulo navbar-text mx-3 my-2">Ai ._. 愛</div>
+                    <div className="titulo navbar-text mx-3 my-2">Ai</div>
                     {usuarioDiv}
                     <div className="divBtnReiniciar mx-3 my-2">{btnReboot}</div>
                 </div>

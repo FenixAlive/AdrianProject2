@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import ResUser from "./ResUser";
 import OpcionesResultados from './OpcionesResultados'
+import { CSVLink, CSVDownload } from "react-csv";
 
 export default class ResultadosTotales extends Component {
   constructor(props) {
@@ -48,6 +49,12 @@ export default class ResultadosTotales extends Component {
     })
   }
   render() {
+    const csvData = [
+      ["firstname", "lastname", "email"],
+      ["Ahmed", "Tomi", "ah@smthing.co.com"],
+      ["Raed", "Labes", "rl@smthing.co.com"],
+      ["Yezzi", "Min l3b", "ymin@cocococo.com"]
+    ];
     if(this.props.estadoJuego.liberarDetalle){
       var liberarDetalle;
     }else{
@@ -65,6 +72,17 @@ export default class ResultadosTotales extends Component {
                             <div>Calificación: <b className="mx-2">{(this.state.users[this.state.username].puntajeTotalUser*100/this.props.estadoJuego.totpreg).toFixed(2)} %</b></div>
                         </div>
             </div>
+            <div className="container">
+                <CSVLink 
+                  data={csvData}
+                  filename={"ResultadosAi.csv"}
+                >
+                  <button className="btn btn-outline-info btn-block">
+                    Decargar Resultados Generales en CSV
+                  </button>
+                </CSVLink>
+            </div>
+            
             <div className="card bg-dark text-white my-5">
               <div className="card-header">Respuestas Generales</div>
               <div className="card-body">
@@ -134,34 +152,3 @@ export default class ResultadosTotales extends Component {
     }
   }
 }
-/*
-<table className="table table-bordered table-sm table-dark">
-            <thead>
-              <tr>
-                <th scope="col"> Usuario </th>
-                {   this.state.results.hasOwnProperty("admin") ?
-                    this.state.results.admin.map((item, keyi)=>{
-                        return (<th key={keyi} scope="col"> Pregunta {keyi+1} </th>)
-                    })
-                : <th />
-                }
-                <th scope="col"> Total </th>
-              </tr>
-            </thead>
-            <tbody>
-                {this.state.results.hasOwnProperty("admin") ?
-                    Object.keys(this.state.results).map((el, keyUs)=>{
-                        return <ResUser key={keyUs} user={el} res={this.state.results[el]} ans={this.state.answers[el]} />
-                    })
-                : <tr />
-                }
-            </tbody>
-          </table>
-          <DetalleRespuestas 
-                user={this.state.detalle} 
-                res={this.state.results[this.state.detalle]} 
-                ans={this.state.answers[this.state.detalle]} 
-                questions={this.props.questions}
-                correctAns ={this.props.correctAns}
-              />
-*/
