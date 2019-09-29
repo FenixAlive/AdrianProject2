@@ -7,12 +7,13 @@ const bdquestions = require(path.join(__dirname, 'questions'))
 const bdanswers = require(path.join(__dirname, 'answers'))
 const app = express();
 
+/*
 //webpack
 const webpack = require('webpack');
 const webpackDevMiddleware = require('webpack-dev-middleware');
 const config = require('./webpack.config');
 app.use(webpackDevMiddleware(webpack(config)));
-
+*/
 //app
 app.set('port', process.env.PORT || 3000);
 app.use(bodyParser.urlencoded({extended: false}));
