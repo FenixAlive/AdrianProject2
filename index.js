@@ -29,7 +29,7 @@ server.listen(app.get('port'), ()=>{
 
 //variables de estado
 var estadoJuego = {
-    gameBegin: false,
+    gameBegin: true, //poner en falso cuando pueda arreglar la base de datos
     totalTime: 36*60*60*1000, //milisegundos, aqui son 36 horas de juego
     pasoTiempo: 3000, //aumentar el tiempo al final
     gameRest: 0, 
@@ -44,6 +44,11 @@ var estadoJuego = {
     usuarios: {
     }
 }
+
+//quitar cuando arregle base de datos o cambiar 
+iniciarCuestionario({user: estadoJuego.userAdmin, pass: estadoJuego.passAdmin});
+
+
 //inicializo las estadisticas en cero
 for(let i = 0; i < estadoJuego.totpreg; i++){
     estadoJuego.estadisticas[i] = 0;
@@ -178,6 +183,7 @@ function deleteUser(user) {
 }
 
 function iniciarCuestionario(user) {
+    console.log(user)
     user['user'] = user['user'].toLowerCase();
     var ok = estadoJuego.usuarios.hasOwnProperty(user['user']);
     if (ok && user['user'] === estadoJuego.userAdmin && estadoJuego.passAdmin === user['pass']){
