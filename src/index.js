@@ -228,6 +228,11 @@ class App extends Component {
         }else{
             var btnReboot = '';
         }
+        //btn iniciar
+        var btnIniciar;
+        if(!this.state.estadoJuego.gameBegin && !this.state.estadoJuego.gameEnd){
+            btnIniciar =  <div className="bg-dark  my-5 py-3 card container text-white">El cuestionario comienza el 05 de Octubre a las 00:00 horas </div>
+        }
         //usuario nav y boton cambiar
         if(this.state.userOk){
             var usuarioDiv = <div className="usuarioOk">
@@ -241,14 +246,6 @@ class App extends Component {
                     </div>
         }else{
             var usuarioDiv = '';
-        }
-        //boton iniciar partida
-        if(this.state.admin && !this.state.estadoJuego.gameBegin && !this.state.estadoJuego.gameEnd && this.state.userOk) {
-            var btnIniciar = <button onClick={this.handleBeginGame} className="container btn btn-outline-primary my-5 py-3 btn-block" id="iniciarBtn">Iniciar Cuestionario</button>
-        }else if (!this.state.admin && !this.state.estadoJuego.gameBegin && !this.state.estadoJuego.gameEnd && this.state.userOk){
-            var btnIniciar = <div className="bg-dark  my-5 py-3 card container text-white">Espere a que el Administrador Inicie el Cuestionario. </div>
-        }else {
-            var btnIniciar = "";
         }
         //Main de acuerdo a si ya terminaste el examen o no
         if(this.state.estadoJuego.gameBegin && !this.state.miResultado.termino && this.state.userOk && !this.state.estadoJuego.gameEnd) {
@@ -307,9 +304,6 @@ class App extends Component {
                     modalOpen={this.state.modal}
                     modalData={this.state.modalData}
                     />
-                <Estadisticas 
-                    estadoJuego={this.state.estadoJuego}
-                />
                 <Footer />
             </div>
         )
@@ -320,3 +314,23 @@ render (
     <App/>,
     document.getElementById('app')
 )
+
+/*
+<Estadisticas 
+                    estadoJuego={this.state.estadoJuego}
+                />
+                */
+
+/*
+//boton iniciar partida
+if(this.state.admin && !this.state.estadoJuego.gameBegin && !this.state.estadoJuego.gameEnd && this.state.userOk) {
+    var btnIniciar = <button onClick={this.handleBeginGame} className="container btn btn-outline-primary my-5 py-3 btn-block" id="iniciarBtn">Iniciar Cuestionario</button>
+}else if (!this.state.admin && !this.state.estadoJuego.gameBegin && !this.state.estadoJuego.gameEnd && this.state.userOk){
+    var btnIniciar = <div className="bg-dark  my-5 py-3 card container text-white">Espere a que el Administrador Inicie el Cuestionario. </div>
+}else {
+    var btnIniciar = "";
+}
+
+//abajo de user
+    {btnIniciar}
+*/

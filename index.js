@@ -30,8 +30,10 @@ server.listen(app.get('port'), ()=>{
 
 //variables de estado
 var estadoJuego = {
-    gameBegin: true, //poner en falso cuando pueda arreglar la base de datos
-    totalTime: 36*60*60*1000, //milisegundos, aqui son 36 horas de juego
+    //año, mes, dia - el mes comienza en 0
+    timeBegin: new Date(2019, 09, 05).getTime(),
+    gameBegin: false, //poner en falso cuando pueda arreglar la base de datos
+    totalTime: 24*60*60*1000, //milisegundos, 
     pasoTiempo: 3000, //aumentar el tiempo al final
     gameRest: 0, 
     gameEnd: false,
@@ -47,7 +49,7 @@ var estadoJuego = {
 }
 
 //quitar cuando arregle base de datos o cambiar 
-iniciarCuestionario({user: estadoJuego.userAdmin, pass: estadoJuego.passAdmin});
+iniciarCuestionario();
 
 
 //inicializo las estadisticas en cero
@@ -183,15 +185,13 @@ function deleteUser(user) {
         }
 }
 
-function iniciarCuestionario(user) {
-    console.log(user)
-    user['user'] = user['user'].toLowerCase();
-    var ok = estadoJuego.usuarios.hasOwnProperty(user['user']);
-    if (ok && user['user'] === estadoJuego.userAdmin && estadoJuego.passAdmin === user['pass']){
-        console.log("inicie cuestionario")
+function iniciarCuestionario() {
+    const now = new Date().getTime();
+    if(estadoJuego.timeBegin < now && estadoJuego.timeBegin+estadoJuego.totalTime > now){
         estadoJuego.gameBegin= true;
-        estadoJuego.gameRest= estadoJuego.totalTime;
+        estadoJuego.gameRest= estadoJuego.totalTime - (estadoJuego.timeBegin-now);
         estadoJuego.juegoId= setInterval(juegoPreguntas, estadoJuego.pasoTiempo);
+        console.log(estadoJuego.gameRest);
     }
 }
 
@@ -231,6 +231,7 @@ function reiniciarJuego() {
         estadoJuego.usuarios[key]['puntajeTotalUser'] = 0;
         estadoJuego.usuarios[key]['termino'] = false;
     });
+    iniciarCuestionario();
 }
 
 function terminoUsuario(data, socket){
