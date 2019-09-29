@@ -299,9 +299,8 @@ function iniciarCuestionario(user) {
 }
 
 function juegoPreguntas() {
-    if(estadoJuego.gameRest > estadoJuego.pasoTiempo){
-        estadoJuego.gameRest-=estadoJuego.pasoTiempo;
-    }else{
+    estadoJuego.gameRest = tiempoRestante(estadoJuego.timeBegin);
+    if(estadoJuego.gameRest <= estadoJuego.pasoTiempo){
         limpiarJuego();
     }
     estadoJuegoBd()
@@ -386,6 +385,9 @@ function tiempoRestante(inicio) {
     if(inicio < now && inicio+total > now){
         estadoJuego.gameBegin= true;
         return total - (inicio-now);
+    }
+    else if(inicio+total<now){
+        estadoJuego.gameEnd = true;
     }
     return 0;
 }
