@@ -12,13 +12,13 @@ const mongoose = require('mongoose');
 const userModel = require('./src/models/User');
 const estadoJuegoModel = require('./src/models/estadoJuego');
 
-
+/*
 //webpack
 const webpack = require('webpack');
 const webpackDevMiddleware = require('webpack-dev-middleware');
 const config = require('./webpack.config');
 app.use(webpackDevMiddleware(webpack(config)));
-
+*/
 
 //conectar a base de datos
 const contra = 'znkSIzCpN0nYMfSp';
