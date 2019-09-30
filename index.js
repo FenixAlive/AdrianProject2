@@ -43,7 +43,7 @@ var estadoJuego = {
     //año, mes, dia - el mes comienza en 0
     timeBegin: new Date(2019, 09, 05).getTime(),
     totalTime: 36*60*60*1000, //milisegundos, aqui son 36 horas de juego
-    pasoTiempo: 7000, //aumentar el tiempo al final
+    pasoTiempo: 20000, //aumentar el tiempo al final
     gameRest: 0, 
     gameEnd: false,
     juegoId: 0,
@@ -371,6 +371,7 @@ function terminoUsuario(data, socket){
             }
         }
         estadoJuegoBd();
+        io.sockets.emit('estadoJuego', estadoActualJuego());
         //Agregar sus respuestas a su estadoJuego
         estadoJuego.usuarios[user['user']]['respuestas'] = resultados;
         //regresarle su resultado
