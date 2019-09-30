@@ -113,9 +113,13 @@ estadoJuegoBd();
 //traer base de datos de usuario al estado (listar usuarios)
 const listarUsuariosBd= async () => {
     var usuarios = await userModel.find();
-    usuarios.map((val,idx)=>{
-        estadoJuego.usuarios[val.user] = val;
-    })
+    if(usuarios.length>0){
+        usuarios.map((val,idx)=>{
+            estadoJuego.usuarios[val.user] = val;
+        })
+    }else{
+        estadoJuego.usuarios = {}
+    }
     estadoJuego.numUsers = usuarios.length;
 };
 //se corre al reiniciar el servidor
@@ -330,6 +334,7 @@ function reiniciarJuego() {
         estadoJuego.estadisticas[i] = 0;
     }
     estadoJuegoBd()
+    listarUsuariosBd();
     Object.keys(estadoJuego.usuarios).map((key, idx)=>{
         estadoJuego.usuarios[key]['respuestas'] = [];
         estadoJuego.usuarios[key]['puntajePP'] = [];
@@ -365,7 +370,7 @@ function terminoUsuario(data, socket){
                 estadoJuego.usuarios[user['user']]['puntajePP'][i] = 0;
             }
         }
-        estadoJuegoBd()
+        estadoJuegoBd();
         //Agregar sus respuestas a su estadoJuego
         estadoJuego.usuarios[user['user']]['respuestas'] = resultados;
         //regresarle su resultado
