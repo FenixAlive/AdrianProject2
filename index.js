@@ -52,7 +52,7 @@ var estadoJuego = {
     numUsers: 0,
     estadisticas: [],
     userAdmin: 'admin',
-    passAdmin: '1234',
+    passAdmin: 'mercadosfinancieros',
     usuarios: {
     }
 }
