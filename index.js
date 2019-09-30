@@ -384,7 +384,7 @@ function tiempoRestante(inicio) {
     const now = new Date().getTime();
     if(inicio < now && inicio+total > now){
         estadoJuego.gameBegin= true;
-        return total - (inicio-now);
+        return inicio + total - now;
     }
     else if(inicio+total<now){
         estadoJuego.gameEnd = true;

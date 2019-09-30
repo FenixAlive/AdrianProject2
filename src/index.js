@@ -108,6 +108,7 @@ class App extends Component {
             })
             if(this.state.admin){
                 this.socket.emit('adminEstado', {user: this.state.username, pass: this.state.password});
+                console.log(`Tiempo restante:  ${Math.floor(estadoJuego.gameRest/(1000*60*60))} horas y ${Math.floor((estadoJuego.gameRest/(1000*60*60)-Math.floor(estadoJuego.gameRest/(1000*60*60)))*60) } minutos = ${estadoJuego.gameRest}`);
             }
         });
         this.socket.on('misResultados', miResultado=>{
