@@ -41,7 +41,7 @@ var estadoJuego = {
     baseId: undefined,
     gameBegin: false, 
     //año, mes, dia - el mes comienza en 0
-    timeBegin: new Date(2019, 09, 05).getTime(),
+    timeBegin: new Date(2019, 09, 12).getTime(),
     totalTime: 36*60*60*1000, //milisegundos, aqui son 36 horas de juego
     pasoTiempo: 20000, //aumentar el tiempo al final
     gameRest: 0, 
